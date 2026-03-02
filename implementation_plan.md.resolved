@@ -1,0 +1,823 @@
+# CODEC — Coder's Development & Evolution Command Center
+## Master Product Requirements Document (Unified PRD)
+
+> **One App. Typing Mastery + Learning OS. Built to make you independent.**
+
+---
+
+## 1. App Identity
+
+| Field | Value |
+|-------|-------|
+| **Name** | CODEC — Coder's Development & Evolution Command Center |
+| **Tagline** | Type better. Learn deeper. Build smarter. |
+| **Users** | Multi-user with authentication (registration + login) |
+| **Context** | Generic learning platform — not tied to any single project |
+| **Storage** | MongoDB (cloud/local) — full backend with user accounts |
+| **AI** | Single Gemini model (API key in `.env` server-side) |
+
+---
+
+## 2. System Architecture
+
+### 2.1 Technology Stack
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| **Frontend** | Vite + React 18 (JSX) | Fast HMR, clean component model |
+| **Styling** | Tailwind CSS v3 | Utility-first, rapid dark theme implementation, excellent for neon effects |
+| **State (client)** | Zustand | Lightweight, simple API, syncs with backend |
+| **Routing** | React Router v6 | Clean URL-based page navigation |
+| **Backend** | Node.js + Express.js | REST API layer between React and MongoDB |
+| **Database** | MongoDB + Mongoose | Document-based storage, flexible schemas, user accounts |
+| **Auth** | JWT (JSON Web Tokens) | Stateless auth with bcrypt password hashing |
+| **Code Editor** | Monaco Editor (React) | VS Code engine in browser |
+| **Python Runtime** | Pyodide (CDN) | Real Python in browser via WebAssembly |
+| **Charts** | Recharts | React-native, composable, great with dark themes |
+| **Icons** | Lucide React | Clean, consistent, tree-shakeable |
+| **AI** | Google Gemini API (single model) | API key stored server-side in `.env` |
+| **ML Pipeline** | Python + scikit-learn | 3-model typing analysis, trained on user data via API |
+| **Animations** | [React Bits](https://reactbits.dev/) | 110+ animated components for stunning UI |
+| **Notifications** | Browser Notification API | Study reminders, no library needed |
+
+### 2.2 Folder Architecture
+
+```
+codec/
+├── client/                          # Vite + React frontend
+│   ├── public/
+│   │   └── favicon.ico
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── index.css                # Tailwind base + theme vars
+│   │   │
+│   │   ├── api/                     # API service layer
+│   │   │   ├── auth.js              # Login/register/logout
+│   │   │   ├── typing.js            # Typing sessions, ML data
+│   │   │   ├── progress.js          # XP, streaks, achievements
+│   │   │   └── learning.js          # Roadmap, schedule, flashcards
+│   │   │
+│   │   ├── store/                   # Zustand client-side state
+│   │   │   ├── useAuthStore.js      # Current user, JWT token
+│   │   │   ├── useAppStore.js       # Active tech, UI state
+│   │   │   ├── useTypingStore.js    # Gate, sessions, lessons
+│   │   │   ├── useTimerStore.js     # Study timer
+│   │   │   └── useNotesStore.js     # Notes cache
+│   │   │
+│   │   ├── pages/                   # 12 pages (one per route)
+│   │   │   ├── Dashboard.jsx        # /
+│   │   │   ├── Typing.jsx           # /typing
+│   │   │   ├── Roadmap.jsx          # /roadmap
+│   │   │   ├── Resources.jsx        # /resources
+│   │   │   ├── CodePlayground.jsx   # /code
+│   │   │   ├── Flashcards.jsx       # /flashcards
+│   │   │   ├── AITutor.jsx          # /tutor
+│   │   │   ├── Schedule.jsx         # /schedule
+│   │   │   ├── Notes.jsx            # /notes
+│   │   │   ├── MiniProjects.jsx     # /projects
+│   │   │   ├── Settings.jsx         # /settings
+│   │   │   ├── Achievements.jsx     # /achievements
+│   │   │   ├── Login.jsx            # /login
+│   │   │   └── Register.jsx         # /register
+│   │   │
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   ├── TopBar.jsx
+│   │   │   │   ├── GateScreen.jsx
+│   │   │   │   ├── PageWrapper.jsx
+│   │   │   │   └── OnboardingFlow.jsx
+│   │   │   ├── ui/
+│   │   │   │   ├── NeonCard.jsx
+│   │   │   │   ├── ProgressBar.jsx
+│   │   │   │   ├── XPBadge.jsx
+│   │   │   │   ├── StreakBadge.jsx
+│   │   │   │   └── Timer.jsx
+│   │   │   ├── typing/
+│   │   │   │   ├── TypingEngine.jsx
+│   │   │   │   ├── LiveKeyboard.jsx
+│   │   │   │   ├── FingerDiagram.jsx
+│   │   │   │   ├── TypingText.jsx
+│   │   │   │   ├── SessionStats.jsx
+│   │   │   │   ├── LessonCard.jsx
+│   │   │   │   ├── DrillCard.jsx
+│   │   │   │   ├── KeyboardHeatmap.jsx
+│   │   │   │   └── WPMProjectionChart.jsx
+│   │   │   ├── dashboard/
+│   │   │   ├── roadmap/
+│   │   │   ├── resources/
+│   │   │   ├── code/
+│   │   │   ├── flashcards/
+│   │   │   ├── tutor/
+│   │   │   └── achievements/
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useAutoTimer.js
+│   │   │   ├── useGemini.js
+│   │   │   ├── usePyodide.js
+│   │   │   ├── useTypingSession.js
+│   │   │   ├── useTypingAnalysis.js
+│   │   │   ├── useNotifications.js
+│   │   │   └── useXP.js
+│   │   │
+│   │   └── utils/
+│   │       ├── xpCalc.js
+│   │       ├── dateUtils.js
+│   │       ├── geminiPrompts.js
+│   │       ├── typingGeminiPrompt.js
+│   │       └── fingerMap.js
+│   │
+│   ├── tailwind.config.js
+│   ├── vite.config.js
+│   └── package.json
+│
+├── server/                          # Express.js backend
+│   ├── index.js                     # Server entry point
+│   ├── config/
+│   │   └── db.js                    # MongoDB connection
+│   ├── middleware/
+│   │   └── auth.js                  # JWT verification middleware
+│   ├── models/                      # Mongoose schemas
+│   │   ├── User.js                  # Auth + profile + settings
+│   │   ├── TypingSession.js         # Full keypress data per session
+│   │   ├── Progress.js              # XP, level, streak, tech progress
+│   │   ├── Note.js                  # Per-tech notes
+│   │   ├── Achievement.js           # Unlocked badges
+│   │   ├── ChatHistory.js           # AI Tutor conversations
+│   │   └── CodeSnippet.js           # Saved playground code
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── typing.js
+│   │   ├── progress.js
+│   │   ├── learning.js
+│   │   ├── tutor.js
+│   │   └── ml.js                    # ML analysis endpoint
+│   ├── services/
+│   │   ├── gemini.js                # Gemini API wrapper
+│   │   └── mlBridge.js              # Calls Python ML script
+│   ├── .env                         # MONGO_URI, GEMINI_API_KEY, JWT_SECRET
+│   └── package.json
+│
+├── ml/                              # Python ML pipeline
+│   ├── codec_typing_ml.py           # Main 3-model script
+│   ├── requirements.txt             # scikit-learn, pandas, numpy
+│   └── README.md                    # How to run
+│
+└── README.md
+```
+
+### 2.3 Data Flow Architecture
+
+```mermaid
+graph LR
+    A[React Frontend] -->|REST API| B[Express Backend]
+    B -->|Mongoose| C[(MongoDB)]
+    B -->|Typing Data| D[Python ML Script]
+    D -->|Analysis Report| B
+    B -->|Report + Prompt| E[Gemini API]
+    E -->|AI Response| B
+    B -->|Results| A
+```
+
+**Key Flow — Typing ML Pipeline:**
+1. User types → keypress data captured in React
+2. Session ends → data sent via API to Express → saved in MongoDB
+3. User clicks "Run Analysis" → Express calls Python ML script with user's session data from MongoDB
+4. ML script trains 3 models on user's data → returns `analysis_report` JSON
+5. Report saved to MongoDB → displayed in frontend
+6. User optionally clicks "Get AI Overview" → Express sends report to Gemini → response displayed
+
+> [!IMPORTANT]
+> Typing data is sent directly to the backend via API — **no JSON file downloads**. The ML model reads from MongoDB through the Express bridge.
+
+---
+
+## 3. Authentication & Multi-User System
+
+### 3.1 Auth Flow
+
+| Screen | Route | Purpose |
+|--------|-------|---------|
+| **Register** | `/register` | Name, email, password, confirm password |
+| **Login** | `/login` | Email + password → JWT token |
+| **Protected Routes** | `/*` | All app routes require valid JWT |
+
+### 3.2 User Model (MongoDB)
+
+```javascript
+{
+  _id: ObjectId,
+  name: String,
+  email: String (unique),
+  password: String (bcrypt hashed),
+  avatar: String (default generated),
+  createdAt: Date,
+  
+  // Profile
+  activeTechId: String,
+  onboardingComplete: Boolean,
+  weeklyHourTarget: Number (default: 3),
+  reminderEnabled: Boolean,
+  reminderTime: String,
+  
+  // Gamification
+  xp: Number (default: 0),
+  level: Number (default: 1),
+  rank: String (default: "Dormant NPC"),
+  streak: { count: Number, lastDate: Date, type: String },
+  
+  // Gate
+  lastGateDate: String,
+  gateSkipCount: Number,
+  gateDurationMinutes: Number (default: 5),
+}
+```
+
+---
+
+## 4. The Entry Flow
+
+### 4.1 First-Time User → Onboarding
+
+1. **Register** → account created, JWT issued
+2. **Welcome Screen** — CODEC logo with React Bits `Starfield` background + `GlitchText` title animation → "Welcome, Trainee NPC. Let's set you up."
+3. **Setup Survey** — 3 questions:
+   - Current typing speed estimate (beginner / intermediate / advanced)
+   - Which technology to start with (dropdown of 10)
+   - Weekly study hours available (number input)
+4. **Profile Created** — XP = 0, Level 1, "Dormant NPC" rank
+5. **Tutorial Overlay** — 60-second walkthrough of key areas (Gate, Dashboard, Typing, Learning)
+6. **First Gate** — proceeds to typing gate
+
+### 4.2 Daily Flow — Returning User
+
+| Step | Screen | What Happens |
+|------|--------|-------------|
+| 1 | **Splash** | Full-screen animated logo (React Bits `Aurora` background + `ShuffleText` title). 1.5 seconds. |
+| 2 | **Gate Check** | Has gate been completed today? If yes → Dashboard. If no → Gate. |
+| 3 | **Typing Gate** | Full-screen typing session. User-chosen duration (1/2/3/5/10 min). Content suited to user's current lesson level. Live SVG keyboard. |
+| 4 | **Gate Result** | 3-second overlay: WPM, accuracy, XP earned. React Bits `Spotlight` effect. |
+| 5 | **Dashboard** | Full app unlocked. |
+
+### 4.3 Gate — Free Skip
+
+- **Skip button** exists — no penalty, no XP deduction
+- Clicking Skip shows confirmation: *"Are you sure? Typing practice is what builds speed. Skip anyway?"*
+- If confirmed: gate marked complete for today, skip count incremented (tracked for analytics, but no punishment)
+- Skip is logged but **does not break streak** (gate completion OR 15+ min study counts for streak)
+
+### 4.4 Gate Duration — User's Choice
+
+- Users set their preferred gate duration in **Settings** page
+- Options: **1 min, 2 min, 3 min, 5 min, 10 min** (default: 5 min)
+- Duration persists in user profile in MongoDB
+- Gate content adapts to length — shorter gates use shorter text passages
+
+### 4.5 Gate Content — Progressive Difficulty
+
+The gate typing content matches the user's current lesson level:
+- **Before completing Level 1**: Gate only shows home row keys (`asdf jkl;`)
+- **After Level 2**: Adds full home row words
+- **After Level 5**: Full alphabet words
+- **After Level 7**: Includes symbols and punctuation
+- **After Level 8**: Real code snippets  
+- Content rotates on a 3-day cycle: **Words → Code → Sentences**
+
+---
+
+## 5. The 12 Pages — Full Specifications
+
+### ⚙️ 1. Settings `/settings`
+
+| Feature | Detail |
+|---------|--------|
+| **Profile** | Edit name, avatar |
+| **Active Technology** | Dropdown of 10 techs — sets current tech for Dashboard & Tutor context |
+| **Gate Duration** | Selector: 1 / 2 / 3 / 5 / 10 minutes |
+| **Weekly Hour Target** | Number input, default 3 |
+| **Study Reminder** | Toggle + time picker (Browser Notifications API) |
+| **Account** | Change password, logout, delete account (requires typing DELETE) |
+| **About** | App version, stack summary |
+
+---
+
+### 🏠 2. Dashboard `/`
+
+Your daily status board — opens every session after the gate.
+
+| Component | Detail |
+|-----------|--------|
+| **XP + Level Bar** | Top of page. Current XP, XP to next level, NPC rank. Dual-colour segments: typing XP (neon green) vs learning XP (neon purple). |
+| **Streak Badge** | Flame counter with animated tiers (see §7.3). |
+| **Status Board** | Mixed checklist of today's tasks from both systems: gate, current week's learning task, flashcard review, mini project check-in. Checkboxes award XP. |
+| **Study Timer** | Auto-running timer in TopBar. Pauses on tab blur. |
+| **Quick Stats Row** | 4 neon cards — Total Hours This Week, Current WPM, Tech Progress %, Sessions Today. |
+| **Study Chart** | Recharts area chart — daily hours over last 14 days. Two series: typing time (green) + learning time (purple). |
+| **Next Action Card** | Gemini-generated (or static fallback): "Your most impactful action right now is..." |
+| **Recent Achievements** | Last 3 badges earned as neon cards. |
+
+---
+
+### ⌨️ 3. Typing `/typing`
+
+Your typing dojo — practice, lessons, stats, ML analysis, and finger guide.
+
+**Five Tabs:**
+
+#### Tab 1: Practice
+- Free typing session. Mode selector: **Words / Code / Sentences**
+- Duration selector: **1 / 3 / 5 / 10 min**
+- Live typing engine with character-by-character highlighting
+- WPM + accuracy update every 5 seconds
+- SVG keyboard below shows correct finger for next key
+- Session data sent to MongoDB on completion via API
+
+#### Tab 2: Lessons
+- **8-level structured curriculum** starting from absolute basics:
+
+| Level | Name | Keys | WPM Target |
+|-------|------|------|-----------|
+| L1 | Home Row Basics | `a s d f` — `j k l ;` | 15 WPM |
+| L2 | Home Row Mastery | All home row + spacebar rhythm | 20 WPM |
+| L3 | Upper Row | `q w e r t` — `y u i o p` | 25 WPM |
+| L4 | Lower Row | `z x c v b` — `n m , . /` | 30 WPM |
+| L5 | Full Alphabet | All 26 letters combined | 35 WPM |
+| L6 | Numbers Row | `1 2 3 4 5` — `6 7 8 9 0` | 38 WPM |
+| L7 | Symbols & Punctuation | `! @ # $ % ^ & * ( ) _ + - = [ ] { }` etc. | 40 WPM |
+| L8 | Code Mode | Real Python, C++, JS snippets | 50 WPM |
+
+- Each level: 4–6 lessons + level test (85%+ accuracy to pass and unlock next)
+- **AI Bonus Drills** section — up to 3 Gemini-assigned drills based on ML analysis (optional, 30 XP each)
+
+#### Tab 3: Stats
+- WPM chart (line, last 30 sessions)
+- Accuracy chart
+- Keyboard heatmap (SVG keys coloured by performance)
+- Finger performance bar chart (8 fingers)
+- Top 20 slowest bigrams list
+- Session history table (last 20)
+- Personal bests per mode
+
+#### Tab 4: ML Analysis
+- **"Run Analysis"** button → calls Express endpoint → runs Python ML → displays results
+- Displays: profile summary, 3 ranked improvement actions, WPM projection chart, typing fingerprint card
+- **"Get AI Overview"** button (optional, user-triggered) → sends ML report to Gemini → shows AI coaching advice + 3 bonus drills
+- Last-updated timestamp with orange badge if >7 days old
+
+#### Tab 5: Finger Guide
+- Full static SVG QWERTY keyboard, colour-coded by finger assignment
+- Hover tooltip on each key
+- Finger legend below keyboard
+
+---
+
+### 🗺️ 4. Roadmap `/roadmap`
+
+| Feature | Detail |
+|---------|--------|
+| **3 Layers** | Layer 1 (Game): C++, UE5, Blender, Git, Python — Layer 2 (AI Brain): PyTorch, RL/PPO, ZeroMQ — Layer 3 (Federation): FastAPI, FedAvg |
+| **Tech Cards** | Name, emoji, layer badge, status, progress bar, hours spent, mini project status, resource count. Click to expand details. |
+| **Mark Active** | Sets current technology (only one at a time) |
+| **Overall Ring** | X / 10 techs complete, animated neon ring |
+| **Filter** | All / In Progress / Complete / Not Started |
+
+---
+
+### 📚 5. Resources `/resources`
+
+| Feature | Detail |
+|---------|--------|
+| **Filter** | By technology (dropdown) + by type (Video / Book / Course / Article) |
+| **Resource Cards** | Title, type badge, tech badge, free badge, description, link |
+| **YouTube Embed** | Toggle to watch inline without leaving CODEC |
+| **Books** | Chapter focus recommendations |
+| **Mark Complete** | Per resource — neon checkmark |
+| **Search** | Full-text across titles and descriptions |
+| **Content** | All resources are **free only** — YouTube channels, free courses, free e-books, free documentation sites |
+
+> [!NOTE]
+> The app starts empty — **zero pre-loaded mock data**. Users add their own resources. The 10 technologies are defined in the roadmap structure, but resource links are user-populated.
+
+---
+
+### 💻 6. Code Playground `/code`
+
+| Feature | Detail |
+|---------|--------|
+| **Monaco Editor** | Full VS Code experience — syntax highlighting, autocomplete, line numbers |
+| **Language Tabs** | Python ∣ C++ ∣ JavaScript (colour-coded) |
+| **Python** | Runs via Pyodide in browser — real execution, no server |
+| **JavaScript** | Sandboxed iframe execution, console output captured |
+| **C++** | Syntax highlighting only — note directing user to compile locally. AI Review works. |
+| **Output Panel** | stdout/stderr. Neon green success, neon red errors. |
+| **AI Review** | Sends code to Gemini → returns line-specific feedback |
+| **Save Snippet** | Name and save to MongoDB. Load from dropdown. |
+
+---
+
+### 🃏 7. Flashcards `/flashcards`
+
+| Feature | Detail |
+|---------|--------|
+| **Filter** | Default: active technology. Dropdown to switch. |
+| **Card Flip** | 3D CSS flip animation. Front = question. Back = explanation. |
+| **Responses** | Got It (+5 XP) / Still Learning (no XP) / Hard (flagged for repeat) |
+| **Session Stats** | Cards reviewed, got-it count, accuracy % |
+| **Pre-loaded** | 200+ flashcards across 10 technologies (min 15 per tech). All pre-loaded in the database seed. |
+| **Shuffle/Reset** | Randomize or restart deck |
+
+> [!NOTE]
+> Flashcards are the **one exception** to "start empty" — the 200+ flashcards come pre-seeded in MongoDB because they are curriculum content, not user data.
+
+---
+
+### 🤖 8. AI Tutor `/tutor`
+
+| Feature | Detail |
+|---------|--------|
+| **Chat UI** | User messages right (neon blue), Gemini left (neon purple). Scrollable. |
+| **Model** | Single Gemini model (configured in server `.env`) |
+| **System Prompt** | Auto-built from: active tech, current week, total hours, XP level |
+| **6 Suggested Prompts** | Change based on active tech |
+| **Code Paste** | Mini Monaco editor inside input |
+| **History** | Persists in MongoDB — last 50 messages |
+| **No API Key?** | Users don't manage API keys — it's server-side in `.env` |
+
+---
+
+### 📅 9. Schedule `/schedule`
+
+| Feature | Detail |
+|---------|--------|
+| **Flexible** | Users can create, edit, reorder, and delete weekly tasks — not a fixed 72-week plan |
+| **Week Cards** | Week number, tech topic, task description, target hours, completion checkbox |
+| **Current Week** | Highlighted with neon glow, auto-scrolled into view |
+| **Completion** | +100 XP per week completed |
+| **Phase Dividers** | Colour-coded section headers |
+| **Filter** | All / Completed / Remaining |
+
+---
+
+### 📝 10. Notes `/notes`
+
+| Feature | Detail |
+|---------|--------|
+| **Sidebar** | 10 tech categories. Click to open. |
+| **Editor** | Rich text area with markdown rendering (bold, lists, code blocks) |
+| **Auto-save** | Saves to MongoDB 500ms after typing stops |
+| **Search** | Full-text across all notes |
+| **Export** | Download all notes as [.md](file:///C:/Users/shane/.gemini/antigravity/brain/66d696af-71cb-479f-a06a-ffd6d236299c/task.md) file |
+| **Word Count** | Shown per note |
+
+---
+
+### 🔨 11. Mini Projects `/projects`
+
+| Feature | Detail |
+|---------|--------|
+| **10 Project Cards** | One per technology |
+| **Each Card** | Name, tech badge, description, 3–5 sub-task checklist, status |
+| **Completion** | All sub-tasks done → +500 XP, unlocks tech badge |
+| **Links** | To relevant resources + Code Playground shortcut |
+| **Progress** | X / 10 complete at top |
+
+---
+
+### 🏆 12. Achievements `/achievements`
+
+Full gallery of achievement badges — locked (greyed) and unlocked (neon glow with React Bits `Sparkles` effect).
+
+**Three Badge Categories:**
+
+#### 🟢 Typing Badges (15 Total)
+
+| Badge | Condition |
+|-------|-----------|
+| First Keystrokes | Complete your first gate session |
+| Home Row Hero | Pass Level 1 with 90%+ accuracy |
+| Full Alphabet | Pass Level 5 |
+| Symbol Master | Pass Level 7 |
+| Code Typist | Pass Level 8 at 50 WPM |
+| Speed 30 | Reach 30 WPM |
+| Speed 50 | Reach 50 WPM |
+| Speed 70 | Reach 70 WPM |
+| Speed 100 | Reach 100 WPM |
+| Consistent | 7 sessions in a row with 90%+ accuracy |
+| Data Scientist | Run ML model 10 times |
+| Gate Keeper | Complete 30 gates without skipping |
+| Marathon Typist | 50 total typing sessions |
+| Night Owl | Complete a gate after 11 PM |
+| Early Bird | Complete a gate before 7 AM |
+
+#### 🔵 Learning Badges (15 Total)
+
+| Badge | Condition |
+|-------|-----------|
+| First Lesson | Complete Week 1 |
+| Tech Explorer | Start 3 different technologies |
+| Deep Diver | Complete any single technology 100% |
+| Flashcard Rookie | Review 50 flashcards |
+| Flashcard Master | Review 500 flashcards |
+| Code Runner | Run code 25 times in Code Playground |
+| Note Taker | Write 1,000+ words across all notes |
+| Project Starter | Start your first mini project |
+| Project Finisher | Complete your first mini project |
+| Halfway There | Complete 5 mini projects |
+| Builder | Complete all 10 mini projects |
+| Curious Mind | Ask AI Tutor 50 questions |
+| Scholar | Study for 100+ total hours |
+| Roadmap 50% | Complete 5 of 10 technologies |
+| The Long Game | Complete all 10 technologies |
+
+#### ⚡ CODEC Cross-System Badges (10 Total — The Rare Ones)
+
+These require **both** a typing AND learning condition. Full neon animation + React Bits `Confetti` on unlock. Worth +250 XP bonus each.
+
+| Badge | Typing Condition | Learning Condition |
+|-------|-----------------|-------------------|
+| 🔥 Dual Threat | 7 gates without skip | 7 weeks of schedule completed |
+| ⚡ CODEC Initiate | Reach 30 WPM | Complete first mini project |
+| 🎯 Precision Coder | 95%+ accuracy session | 90%+ flashcard deck score |
+| 🧠 Mind & Fingers | Pass typing Level 5 | Complete Python technology |
+| 💻 Developer DNA | Reach 50 WPM | Complete 3 mini projects |
+| 🤖 NPC Awakened | Complete all 8 levels | Complete 5 technologies |
+| ⚙️ Machine Learning | Run ML model 20 times | Complete PyTorch technology |
+| 🏋️ Grinder | 100 total typing sessions | 200+ total study hours |
+| 🌟 All-Rounder | 70 WPM achieved | All 10 techs started |
+| 👾 THE CODEC | 80 WPM + all 8 levels | All 10 techs + all projects done |
+
+---
+
+## 6. XP, Ranks & Gamification
+
+### 6.1 XP Events
+
+| Action | XP |
+|--------|-----|
+| Complete typing gate (no skip) | +50 |
+| Skip the gate | +0 (free skip) |
+| Voluntary typing session | +20 |
+| Pass a typing lesson (85%+) | +75 |
+| Unlock a new typing level | +200 |
+| Complete AI bonus drill | +30 |
+| Break personal best WPM | +100 |
+| Run ML model analysis | +25 |
+| Reach WPM milestone (30/50/70/100) | +500 each |
+| 7-day gate streak | +300 bonus |
+| 30-day gate streak | +1,000 bonus |
+| Complete a schedule week | +100 |
+| Flashcard "Got It" | +5 |
+| Complete mini project sub-task | +50 |
+| Complete full mini project | +500 |
+| Complete full technology | +1,000 |
+| Write 200+ words in Notes | +15 |
+| Run code in playground | +3 |
+| Ask AI Tutor a question | +2 |
+| Unlock a CODEC cross-badge | +250 bonus |
+| First login of the day | +10 |
+
+### 6.2 NPC Rank System (8 Levels)
+
+| Level | XP | Rank | Meaning |
+|-------|-----|------|---------|
+| 1 | 0 | 🤖 Dormant NPC | No learned behaviour yet |
+| 2 | 500 | 🔵 Script Initialised | Basic patterns loading |
+| 3 | 1,500 | 🟢 Pattern Recognition | Identifying code structures |
+| 4 | 3,500 | 🟡 Behavioural Clone | Mirroring expert patterns |
+| 5 | 7,000 | 🟠 Adaptive Fighter | Context-aware responses |
+| 6 | 12,000 | 🔴 Threat Level: Elevated | Becoming dangerous (in a good way) |
+| 7 | 20,000 | ⚡ Federated Intelligence | Distributed knowledge achieved |
+| 8 | 35,000 | 👾 THE FINAL BOSS | Ultimate mastery |
+
+### 6.3 Streak System — Dynamic Flames
+
+One streak counter. Either completing the gate **OR** studying for 15+ minutes counts.
+
+| Tier | Condition | Visual |
+|------|-----------|--------|
+| 🥉 **Bronze** | Typing only day (gate completed) | Bronze flame, subtle pulse |
+| 🥈 **Silver** | Learning only day (15+ min study) | Silver flame, medium glow |
+| 🥇 **Gold** | Both done (gate + 15 min learning) | Gold flame, full neon pulse animation (React Bits `Spotlight`) |
+| 💎 **Diamond** | 30+ day streak | Diamond flame with `Sparkles` particle effect, only on 30+ days |
+
+Breaking streak: *"Streak broken. The NPC is recalibrating. Start again today."* — count resets but all-time best is preserved.
+
+---
+
+## 7. The ML + Gemini Pipeline
+
+### 7.1 Data Collection — Per Keypress
+
+The TypingEngine captures 6 data points per keypress:
+
+| Data Point | Description |
+|-----------|-------------|
+| `key` | Character pressed |
+| `isCorrect` | Boolean — matches expected? |
+| `timestamp` | `performance.now()` — ms precision |
+| `prevKey` | Previous key (for bigram analysis) |
+| `holdDuration` | Keydown to keyup (ms) |
+| `backspaceLatency` | Time from error to backspace (ms) |
+
+### 7.2 Data Flow — No Downloads
+
+1. Session ends → full keypress data sent to Express API → stored in MongoDB (`TypingSession` collection)
+2. User clicks "Run Analysis" → Express endpoint calls Python ML script → passes user's session data from MongoDB
+3. Python script trains 3 models → returns analysis JSON → saved to MongoDB
+4. Frontend displays results from MongoDB
+
+> [!IMPORTANT]
+> No JSON file downloads. No manual file copying. The entire pipeline is automated through the API.
+
+### 7.3 The Three ML Models
+
+**Model 1 — Weak Key Classifier (Random Forest)**
+- Trains on: per-key avg latency, error rate, hold duration variance, backspace frequency
+- Labels each key: Strong / Average / Weak
+- Output: ranked weak keys with per-key latency and error rate
+
+**Model 2 — WPM Growth Predictor (Polynomial Regression)**
+- Trains on: session sequence, cumulative practice time, days elapsed
+- Degree-2 polynomial regression
+- Output: current WPM, predicted WPM at 30/60/90 sessions, days to target WPM
+
+**Model 3 — Typing Fingerprint (K-Means Clustering)**
+- Trains on: inter-key latency + bigram latency matrix
+- K=4 clusters: Burst Typist, Steady Rhythm, Hesitant Typist, Fatiguing Typist
+- Output: profile name, top 20 slowest bigrams, fatigue onset time
+
+### 7.4 Gemini Integration — User-Triggered
+
+The AI overview is **not automatic**. After ML results are displayed:
+1. User reviews their ML analysis data (stats, weak keys, trajectory, fingerprint)
+2. User decides to click **"Get AI Overview"** button
+3. Express sends `analysis_report` to Gemini with structured prompt
+4. Gemini returns: 2-sentence summary, 3 improvement actions, 3 bonus drills, motivation
+5. Response saved to MongoDB and displayed
+
+---
+
+## 8. Design System — Surprise Theme
+
+### 8.1 Theme: "Cyberpunk Command Center"
+
+A dark, immersive cyberpunk aesthetic — not generic dark mode, but a **full terminal-meets-gaming** experience.
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--bg-primary` | `#0A0E1A` | Main background — deep space blue-black |
+| `--bg-card` | `#111827` | Card/panel backgrounds |
+| `--bg-elevated` | `#1A2035` | Elevated surfaces, modals |
+| `--text-primary` | `#E2E8F0` | Main text |
+| `--text-muted` | `#64748B` | Secondary text |
+| `--neon-cyan` | `#00F5D4` | Primary accent, success states |
+| `--neon-magenta` | `#F72585` | Secondary accent, warnings |
+| `--neon-blue` | `#4361EE` | Informational, links |
+| `--neon-gold` | `#FFD60A` | XP, achievements, highlights |
+| `--neon-orange` | `#FF6B35` | Streak, urgency |
+| `--neon-purple` | `#7B2FF7` | AI responses, learning system |
+| `--border-dim` | `#1E293B` | Card borders (default) |
+
+### 8.2 React Bits Animations — Where to Use
+
+| Component | React Bits Component | Where Used |
+|-----------|---------------------|-----------|
+| **Splash Screen** | `Aurora` background + `ShuffleText` | App load, 1.5 seconds |
+| **Page Transitions** | `FadeContent` | Between page navigations |
+| **Typing Text** | `SplitText` (letter-by-letter reveal) | Gate screen intro text |
+| **Achievement Unlock** | `Confetti` + `Spotlight` | Badge unlock celebration |
+| **XP Gain** | `CountUp` (animated number) | XP changes on Dashboard |
+| **Streak Fire** | `Sparkles` particles | Gold/Diamond streak flames |
+| **Card Hovers** | `TiltCard` | NeonCard hover effect |
+| **Loading States** | `RotatingText` | While ML model runs |
+| **Dashboard Stats** | `CountUp` | Stat card number animations |
+| **Sidebar Active** | `GlowEffect` | Active nav item indicator |
+| **Gate Timer** | `GradientText` | Countdown timer digits |
+| **Error States** | `GlitchText` | Error messages, streak broken |
+| **Background** | `Particles` (subtle, low opacity) | Behind main content area |
+
+### 8.3 Typography
+
+| Usage | Font | Source |
+|-------|------|--------|
+| **Headings** | `Bricolage Grotesque` | Google Fonts |
+| **Body** | `Inter` | Google Fonts |
+| **Code/Mono** | `JetBrains Mono` | Google Fonts |
+| **Accent/Rank** | `Orbitron` | Google Fonts (for NPC rank titles) |
+
+### 8.4 Key Design Rules
+
+1. **Never white backgrounds** — everything is `--bg-primary` or darker
+2. **Neon = accent only** — text and borders glow, backgrounds stay dark
+3. **Cards have subtle glow on hover** — `border-color` transitions to neon, faint `box-shadow`
+4. **All interactive elements pulse** — buttons, active states, timers
+5. **Micro-animations everywhere** — number counters animate, progress bars fill smoothly, cards tilt on hover
+
+---
+
+## 9. MongoDB Schema — Complete
+
+### Collections
+
+| Collection | Key Fields |
+|-----------|------------|
+| `users` | name, email, password (hashed), profile settings, XP/level/streak, gateDuration |
+| `typingSessions` | userId, date, mode, duration, wpm, accuracy, keypresses[], backspaces[] |
+| `progress` | userId, techProgress {}, weekCompletions [], projectProgress {} |
+| `notes` | userId, techId, content (markdown), lastEdited, wordCount |
+| `achievements` | userId, unlockedBadges [], unlockedDates {} |
+| `chatHistory` | userId, messages [] (last 50), createdAt |
+| `codeSnippets` | userId, name, language, code, createdAt |
+| `mlAnalysis` | userId, report (JSON), geminiAdvice (JSON), createdAt |
+| `flashcardProgress` | userId, cardId, timesReviewed, timesCorrect, difficulty |
+| `scheduleWeeks` | userId, weekNumber, techId, topic, task, targetHours, completed |
+
+---
+
+## 10. SVG Keyboard — Finger Mapping
+
+The keyboard is a hand-crafted SVG. Each key is a `<rect>` + `<text>`. Colour-coded by finger:
+
+| Finger | Keys | Colour |
+|--------|------|--------|
+| Left Pinky | Q, A, Z, 1, Tab, Caps, Shift | `#7B2FF7` (purple) |
+| Left Ring | W, S, X, 2 | `#4361EE` (blue) |
+| Left Middle | E, D, C, 3 | `#00F5D4` (cyan) |
+| Left Index | R, F, V, T, G, B, 4, 5 | `#FFD60A` (gold) |
+| Right Index | Y, H, N, U, J, M, 6, 7 | `#FF6B35` (orange) |
+| Right Middle | I, K, 8, , | `#00F5D4` (cyan) |
+| Right Ring | O, L, 9, . | `#4361EE` (blue) |
+| Right Pinky | P, ;, /, 0, [, ], ', Enter, Backspace | `#7B2FF7` (purple) |
+| Both Thumbs | Spacebar | `#E2E8F0` (white) |
+
+**During practice:** Next key glows with its finger colour + `scale(1.1)` + finger label below: *"USE: Left Index Finger"*
+
+---
+
+## 11. Flashcard Content — Pre-Seeded (200+)
+
+> [!NOTE]
+> The 200+ flashcards are generic (not project-specific) and cover the 10 technologies.
+
+| Technology | Card Count | Topics |
+|-----------|-----------|--------|
+| Python | 20 | Variables, lists, dicts, classes, OOP, JSON, pip, virtualenvs, lambda, list comprehension, error handling, f-strings, modules, decorators, generators, context managers, itertools, type hints, dataclasses, async/await |
+| C++ | 25 | Pointers, references, classes, inheritance, memory, smart pointers, templates, vectors, const, headers, compilation, linker, namespaces, STL, operator overloading, RAII, move semantics, virtual functions, abstract classes, polymorphism, lambdas, auto, range-for, constexpr, structured bindings |
+| Git | 12 | Commit, branch, merge, push, pull, clone, diff, stash, rebase, conflict resolution, cherry-pick, bisect |
+| UE5 | 25 | ACharacter, APawn, AActor, GameMode, Blueprint vs C++, Enhanced Input, UMG, AnimBlueprint, Collision, LineTrace, TSubclassOf, UPROPERTY, UFUNCTION, GAS, NavMesh, tick, components, delegates, interfaces, subsystems, widgets, materials, particles, level streaming, replication |
+| Blender | 15 | Mesh, armature, UV unwrap, material, modifier, export FBX, rigging, weight painting, keyframe, IK, shading, render engine, normals, topology, LOD |
+| PyTorch | 25 | Tensor, nn.Module, Linear, ReLU, forward pass, loss, optimizer, Adam, backprop, gradient, batch, epoch, overfitting, regularization, GPU, DataLoader, autograd, save/load, transforms, CNN, LSTM, attention, embedding, dropout, batch normalization |
+| RL/PPO | 30 | Agent, environment, state, action, reward, policy, value function, Q-value, Bellman, exploration, PPO, clipped objective, actor-critic, entropy, GAE, on-policy, off-policy, DQN, episode, trajectory, discount factor, advantage, baseline, REINFORCE, replay buffer, target network, TD learning, multi-agent, self-play, curriculum learning |
+| ZeroMQ | 12 | Socket, REQ-REP, PUB-SUB, PUSH-PULL, bind, connect, JSON serialization, message framing, async, context, inproc, multipart messages |
+| FastAPI | 18 | Route, endpoint, Pydantic, GET, POST, PUT, DELETE, HTTP, JSON body, uvicorn, async, dependency injection, status codes, CORS, middleware, query params, response model, OAuth2 |
+| Federated Learning | 20 | FedAvg, weight averaging, client, server, communication round, non-IID data, privacy, differential privacy, gradient compression, aggregation, local epochs, global model, convergence, client drift, secure aggregation, federated optimization, heterogeneity, personalization, cross-device, cross-silo |
+
+---
+
+## 12. API Endpoints Summary
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Login → JWT |
+| GET | `/api/auth/me` | Get current user |
+| PUT | `/api/auth/profile` | Update profile/settings |
+| POST | `/api/typing/session` | Save typing session data |
+| GET | `/api/typing/sessions` | Get user's session history |
+| GET | `/api/typing/stats` | Get typing stats summary |
+| POST | `/api/ml/analyze` | Trigger ML analysis |
+| GET | `/api/ml/report` | Get latest ML report |
+| POST | `/api/ml/gemini-overview` | Get Gemini AI overview of ML report |
+| GET | `/api/progress` | Get user progress (XP, level, etc.) |
+| PUT | `/api/progress` | Update progress |
+| GET | `/api/flashcards` | Get flashcards (filtered by tech) |
+| PUT | `/api/flashcards/:id/progress` | Update card review status |
+| GET/POST/PUT/DELETE | `/api/schedule` | CRUD for schedule weeks |
+| GET/PUT | `/api/notes/:techId` | Get/update notes for a tech |
+| GET/POST/DELETE | `/api/snippets` | Saved code snippets |
+| GET/POST | `/api/tutor/chat` | AI Tutor conversation |
+| GET | `/api/achievements` | Get user's badges |
+| POST | `/api/achievements/check` | Check & unlock new badges |
+
+---
+
+## Verification Plan
+
+### Automated Testing
+1. **Backend API Tests**: Run with `npm test` in the `server/` directory using Jest + Supertest
+   - Auth endpoints (register, login, protected routes)
+   - CRUD operations for all models
+   - ML bridge endpoint responses
+
+2. **Frontend Build**: Run `npm run build` in `client/` to verify zero build errors
+
+### Manual / Browser Testing
+1. **Auth Flow**: Register → Login → Protected routes redirect if not authenticated
+2. **Gate Flow**: Splash → Gate appears → Type → Complete → Dashboard loads
+3. **Typing**: All 5 tabs render, typing engine captures keypresses, SVG keyboard highlights
+4. **ML Pipeline**: Run Analysis → Python script executes → results display → "Get AI Overview" sends to Gemini
+5. **All 12 Pages**: Navigate each page from sidebar, verify render without errors
+6. **XP System**: Trigger 3+ XP events, verify Dashboard shows correct XP and level
+7. **Achievements**: Trigger a badge unlock, verify it appears with animation
+8. **Responsive**: Test at 1920px, 1440px, 1024px, 768px widths
