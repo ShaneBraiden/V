@@ -65,6 +65,15 @@ export const updateFlashcardProgress = async (cardId, data) => {
   return handleResponse(res);
 };
 
+export const generateFlashcards = async (techId) => {
+  const res = await fetch('/api/learning/flashcards/generate', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ techId }),
+  });
+  return handleResponse(res);
+};
+
 /** Fetch the freshest user object (after XP / streak updates) */
 export const refreshUser = async () => {
   const res = await fetch('/api/auth/me', { headers: getHeaders() });

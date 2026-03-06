@@ -1,13 +1,13 @@
 /** @fileoverview Flashcards page - spaced repetition flashcards with tech filter */
 import { useState, useEffect, useCallback } from 'react';
-import { getFlashcards, updateFlashcardProgress } from '../api/progress';
+import { getFlashcards, updateFlashcardProgress, generateFlashcards } from '../api/progress';
 import { addXP } from '../api/progress';
 import useAppStore from '../store/useAppStore';
 import FlashCard from '../components/flashcards/FlashCard';
 import CardControls from '../components/flashcards/CardControls';
 import TechFilter from '../components/resources/TechFilter';
 import BrutalCard from '../components/ui/BrutalCard';
-import { Layers, Shuffle, RotateCcw } from 'lucide-react';
+import { Layers, Shuffle, RotateCcw, Sparkles } from 'lucide-react';
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -25,6 +25,7 @@ export default function Flashcards() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [stats, setStats] = useState({ reviewed: 0, gotIt: 0, learning: 0, hard: 0 });
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   const loadCards = useCallback(async (tech) => {
     setLoading(true);
@@ -78,6 +79,20 @@ export default function Flashcards() {
     setStats({ reviewed: 0, gotIt: 0, learning: 0, hard: 0 });
   };
 
+  const handleGenerate = async () => {
+    const tech = techFilter === 'all' ? 'general programming' : techFilter;
+    setGenerating(true);
+    try {
+      const data = await generateFlashcards(tech);
+      const generated = data.flashcards || [];
+      setCards((prev) => [...prev, ...generated]);
+    } catch (e) {
+      console.error('Generate flashcards error:', e);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const currentCard = cards[currentIdx];
 
   return (
@@ -86,7 +101,17 @@ export default function Flashcards() {
         <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
           <Layers className="text-brutal-mint" size={22} /> Flashcards
         </h1>
-        <span className="text-sm text-text-muted">{cards.length} cards</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleGenerate}
+            disabled={generating}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brutal-purple/20 text-brutal-purple border border-brutal-purple/40 rounded-lg hover:bg-brutal-purple/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Sparkles size={14} className={generating ? 'animate-spin' : ''} />
+            {generating ? 'Generating...' : 'Generate Flashcards'}
+          </button>
+          <span className="text-sm text-text-muted">{cards.length} cards</span>
+        </div>
       </div>
 
       <TechFilter value={techFilter} onChange={setTechFilter} />

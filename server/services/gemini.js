@@ -86,4 +86,35 @@ Keep it conversational, supportive, and practical. Do NOT use markdown headers. 
   return result.response.text().trim();
 };
 
-module.exports = { getTypingAdvice, chatWithTutor, reviewPythonCode };
+/**
+ * Generate flashcards for a given technology using Gemini
+ */
+const generateFlashcards = async (techId) => {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const prompt = `You are a flashcard generator for a developer learning app. Generate exactly 10 flashcards for the technology: "${techId}".
+
+Return ONLY valid JSON with no extra text or markdown. Return exactly this JSON structure:
+{
+  "flashcards": [
+    { "front": "question text", "back": "answer text", "difficulty": "easy|medium|hard" },
+    ...
+  ]
+}
+
+Rules:
+- Generate exactly 10 flashcards
+- Mix difficulties: ~3 easy, ~4 medium, ~3 hard
+- Questions should be practical and useful for developers
+- Answers should be concise (1-3 sentences)
+- Cover different subtopics within the technology
+- Do NOT repeat common beginner questions — aim for useful, interview-level content`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  return JSON.parse(cleaned);
+};
+
+module.exports = { getTypingAdvice, chatWithTutor, reviewPythonCode, generateFlashcards };

@@ -3,6 +3,7 @@ const FlashcardProgress = require('../models/FlashcardProgress');
 const ScheduleWeek = require('../models/ScheduleWeek');
 const Note = require('../models/Note');
 const auth = require('../middleware/auth');
+const { generateFlashcards } = require('../services/gemini');
 
 // Flashcards are served from the seed data stored in MongoDB 'flashcards' collection
 const mongoose = require('mongoose');
@@ -16,6 +17,33 @@ router.get('/flashcards', auth, async (req, res) => {
     res.json(flashcards);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+router.post('/flashcards/generate', auth, async (req, res) => {
+  try {
+    const { techId } = req.body;
+    if (!techId) return res.status(400).json({ message: 'techId is required' });
+
+    const result = await generateFlashcards(techId);
+    const cards = (result.flashcards || []).map((card, i) => ({
+      id: `gen-${techId}-${Date.now()}-${i}`,
+      techId,
+      front: card.front,
+      back: card.back,
+      difficulty: card.difficulty || 'medium',
+      generated: true,
+    }));
+
+    const db = mongoose.connection.db;
+    if (cards.length > 0) {
+      await db.collection('flashcards').insertMany(cards);
+    }
+
+    res.json({ flashcards: cards });
+  } catch (error) {
+    console.error('Flashcard generation error:', error);
+    res.status(500).json({ message: 'Failed to generate flashcards' });
   }
 });
 
