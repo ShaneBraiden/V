@@ -45,15 +45,16 @@ print("UE5 Key Terms:")
 for term, desc in terms.items():
     print(f"  {term}: {desc}")` },
             {
-                type: 'challenge', title: 'Actor vs Component', instructions: `Print the correct relationship:\n\n**"An Actor CONTAINS Components"**\n**"A Character IS A Pawn"**\n**"Lumen handles global illumination"**`, starterCode: `facts = [
-    "An Actor CONTAINS Components",
-    "A Character IS A Pawn",
-    "Lumen handles global illumination",
-]
-
-for f in facts:
-    print(f)`,
-                check: (out) => out.includes('Actor CONTAINS') && out.includes('Lumen'), hint: 'Print all three facts'
+                type: 'challenge', challengeType: 'mcq', title: 'Actor vs Component',
+                question: 'Which of the following statements is true regarding UE5 Actors and Components?',
+                options: [
+                    'An Actor can only have one Component.',
+                    'A Component CONTAINS Actors.',
+                    'An Actor CONTAINS Components.',
+                    'Actors and Components are the exact same thing.'
+                ],
+                correctAnswerIndex: 2,
+                hint: 'Think about which one is placed in the level, and which one is attached to it.'
             },
         ],
     },
@@ -120,15 +121,16 @@ enemy.begin_play()
 enemy.take_damage(60)
 enemy.take_damage(60)` },
             {
-                type: 'challenge', title: 'Blueprint Events', instructions: `List the 3 most common Blueprint events in order of when they fire:\n1. **Event BeginPlay** — game start\n2. **Event Tick** — every frame\n3. **Event EndPlay** — on destroy/exit\n\nPrint them in this format.`, starterCode: `events = [
-    ("Event BeginPlay", "game start"),
-    ("Event Tick", "every frame"),
-    ("Event EndPlay", "on destroy/exit"),
-]
-
-for i, (event, when) in enumerate(events, 1):
-    print(f"{i}. {event} — {when}")`,
-                check: (out) => out.includes('BeginPlay') && out.includes('Tick') && out.includes('EndPlay'), hint: 'Print all 3 events'
+                type: 'challenge', challengeType: 'mcq', title: 'Blueprint Events',
+                question: 'In what order do the core lifecycle Blueprint events fire?',
+                options: [
+                    'Tick → BeginPlay → EndPlay',
+                    'BeginPlay → Tick → EndPlay',
+                    'EndPlay → BeginPlay → Tick',
+                    'BeginPlay → EndPlay → Tick'
+                ],
+                correctAnswerIndex: 1,
+                hint: 'It starts, then it runs every frame, then it is destroyed.'
             },
         ],
     },
@@ -193,15 +195,16 @@ for type_, name, correct in classes:
     match = "✓" if auto == correct else "✗"
     print(f"  {match} {type_}: {name} → {auto}")` },
             {
-                type: 'challenge', title: 'UPROPERTY Flags', instructions: `Print the correct UPROPERTY flags for each use case:\n- Show in editor AND Blueprint: **EditAnywhere, BlueprintReadWrite**\n- Blueprint read only: **BlueprintReadOnly**\n- Hidden, internal only: **no flags**`, starterCode: `cases = [
-    ("Show in editor AND Blueprint", "EditAnywhere, BlueprintReadWrite"),
-    ("Blueprint read only", "BlueprintReadOnly"),
-    ("Hidden, internal only", "no flags"),
-]
-
-for use, flags in cases:
-    print(f"{use}: {flags}")`,
-                check: (out) => out.includes('EditAnywhere') && out.includes('BlueprintReadOnly'), hint: 'Print all 3 cases'
+                type: 'challenge', challengeType: 'mcq', title: 'UPROPERTY Flags',
+                question: 'Which UPROPERTY flags should you use to make a variable visible and editable in both the C++ Editor panel and Blueprint graphs?',
+                options: [
+                    'VisibleAnywhere, BlueprintReadOnly',
+                    'EditAnywhere, BlueprintReadWrite',
+                    'EditDefaultsOnly, BlueprintCallable',
+                    'VisibleDefaultsOnly, BlueprintPure'
+                ],
+                correctAnswerIndex: 1,
+                hint: 'You want to Edit it anywhere, and Read/Write it in Blueprints.'
             },
         ],
     },
@@ -246,16 +249,16 @@ print("Enhanced Input Actions:")
 for ia, desc in input_actions.items():
     print(f"  {ia}: {desc}")` },
             {
-                type: 'challenge', title: 'Input Architecture', instructions: `Print the correct order of Enhanced Input setup:\n1. Create Input Action assets\n2. Create Input Mapping Context\n3. Add bindings to the IMC\n4. Apply IMC in BeginPlay\n5. Bind actions in SetupPlayerInputComponent`, starterCode: `steps = [
-    "Create Input Action assets",
-    "Create Input Mapping Context",
-    "Add bindings to the IMC",
-    "Apply IMC in BeginPlay",
-    "Bind actions in SetupPlayerInputComponent",
-]
-for i, s in enumerate(steps, 1):
-    print(f"{i}. {s}")`,
-                check: (out) => out.includes('Input Action') && out.includes('IMC') && out.includes('BeginPlay'), hint: 'Print all 5 setup steps'
+                type: 'challenge', challengeType: 'mcq', title: 'Input Architecture',
+                question: 'In the UE5 Enhanced Input system, what is the role of the Input Mapping Context (IMC)?',
+                options: [
+                    'It defines what "Jump" means logically.',
+                    'It executes the C++ function when a button is pressed.',
+                    'It maps raw physical keys (like Spacebar) to logical Input Actions (like Jump).',
+                    'It is the legacy replacement for the old Axis Mappings.'
+                ],
+                correctAnswerIndex: 2,
+                hint: 'It bridges the gap between hardware keys and the abstract actions you defined.'
             },
         ],
     },

@@ -5,7 +5,7 @@ import useAppStore from '../store/useAppStore';
 import { getStats, getSessions } from '../api/typing';
 import { getProgress, getAchievements } from '../api/progress';
 import { TECHNOLOGIES } from '../utils/typingGeminiPrompt';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import XPBadge from '../components/ui/XPBadge';
 import StreakBadge from '../components/ui/StreakBadge';
 import StatCard from '../components/dashboard/StatCard';
@@ -98,14 +98,30 @@ export default function Dashboard() {
     ? `Keep pushing on ${activeTechObj.name}. Practice for at least 20 minutes today and complete a lesson.`
     : 'Pick an active technology on the Roadmap and start your first lesson.';
 
-  // Achievement badge lookup
-  const ACHIEVEMENT_LABELS = {
-    first_session: '🎯 First Session',
-    speed_demon: '⚡ Speed Demon',
-    consistent: '🔥 Consistent',
-    centurion: '💯 Centurion',
-    perfectionist: '✨ Perfectionist',
+  // Derive last 3 unlocked badges, most recent first
+  const recentBadges = badges
+    .filter((b) => b.unlocked)
+    .sort((a, b) => new Date(b.unlockedAt || 0) - new Date(a.unlockedAt || 0))
+    .slice(0, 3);
+
+  // Category colour mapping
+  const categoryColor = {
+    typing: { text: 'text-brutal-mint', bg: 'bg-brutal-mint/10', border: 'border-2 border-brutal-black' },
+    learning: { text: 'text-brutal-purple', bg: 'bg-brutal-purple/10', border: 'border-2 border-brutal-black' },
+    codec: { text: 'text-brutal-yellow', bg: 'bg-brutal-yellow/10', border: 'border-2 border-brutal-black' },
   };
+
+  // Default emoji per category if badge has none
+  const defaultEmoji = { typing: '⌨️', learning: '📚', codec: '⚡' };
+
+  function relativeDate(iso) {
+    if (!iso) return '';
+    const diff = Math.floor((Date.now() - new Date(iso)) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 30) return `${diff}d ago`;
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
 
   return (
     <div className="space-y-6">
@@ -152,40 +168,63 @@ export default function Dashboard() {
       {/* Chart + Next Step */}
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <NeonCard>
-            <h3 className="text-sm font-heading text-gray-400 mb-3">
-              Study Activity — last 14 days <span className="text-gray-600 font-normal text-xs">(minutes)</span>
+          <BrutalCard>
+            <h3 className="text-sm font-heading text-text-secondary mb-3">
+              Study Activity — last 14 days <span className="text-text-muted font-normal text-xs">(minutes)</span>
             </h3>
             <StudyChart data={dailyStats} />
-          </NeonCard>
+          </BrutalCard>
         </div>
         <NextStepCard action={nextAction} tech={activeTechObj?.name} />
       </div>
 
       {/* Recent Achievements */}
-      {badges.length > 0 && (
-        <div>
-          <h3 className="text-sm font-heading text-gray-400 mb-3 flex items-center gap-2">
-            <Trophy size={16} className="text-neon-gold" /> Recent Achievements
-          </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {badges.slice(-3).reverse().map((b) => (
-              <NeonCard key={b.badgeId} color="gold" className="text-center p-3">
-                <p className="text-sm text-neon-gold font-semibold">
-                  {ACHIEVEMENT_LABELS[b.badgeId] || b.badgeId}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">{b.earnedAt?.split('T')[0]}</p>
-              </NeonCard>
-            ))}
+      <div>
+        <h3 className="text-sm font-heading text-text-secondary mb-3 flex items-center gap-2">
+          <Trophy size={16} className="text-brutal-yellow" />
+          Recent Achievements
+          {recentBadges.length > 0 && (
+            <span className="text-xs text-text-muted font-normal ml-1">
+              {badges.filter(b => b.unlocked).length} / {badges.length} unlocked
+            </span>
+          )}
+        </h3>
+
+        {recentBadges.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {recentBadges.map((b) => {
+              const col = categoryColor[b.category] || categoryColor.typing;
+              const emoji = b.emoji || defaultEmoji[b.category] || '🏅';
+              return (
+                <div
+                  key={b.id}
+                  className={`rounded-lg border-2 border-brutal-black p-4 ${col.bg} shadow-brutal-sm flex items-start gap-3`}
+                >
+                  <span className="text-2xl flex-shrink-0">{emoji}</span>
+                  <div className="min-w-0">
+                    <p className={`text-sm font-semibold ${col.text} truncate`}>{b.name}</p>
+                    <p className="text-xs text-text-muted mt-0.5 leading-tight line-clamp-2">{b.description}</p>
+                    <p className="text-xs text-text-muted mt-1.5">{relativeDate(b.unlockedAt)}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
+        ) : (
+          !loading && (
+            <BrutalCard className="text-center py-5">
+              <Trophy size={24} className="text-text-muted mx-auto mb-2" />
+              <p className="text-text-muted text-sm">No badges yet — complete your first gate or lesson!</p>
+            </BrutalCard>
+          )
+        )}
+      </div>
 
       {/* Empty state when no sessions yet */}
       {!loading && stats?.totalSessions === 0 && (
-        <NeonCard className="text-center py-8">
-          <p className="text-gray-500 text-sm">No sessions yet — head to the Typing page and start practicing!</p>
-        </NeonCard>
+        <BrutalCard className="text-center py-8">
+          <p className="text-text-muted text-sm">No sessions yet — head to the Typing page and start practicing!</p>
+        </BrutalCard>
       )}
     </div>
   );

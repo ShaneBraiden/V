@@ -7,8 +7,8 @@ export default function BadgeGallery({ title, badges, onBadgeClick }) {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-heading font-semibold text-gray-200">{title}</h2>
-        <span className="text-sm text-gray-500">
+        <h2 className="text-lg font-heading font-semibold text-text-primary">{title}</h2>
+        <span className="text-sm text-text-muted">
           {unlockedCount} / {badges.length}
         </span>
       </div>

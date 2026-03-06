@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
   lastGateDate: { type: String, default: '' },
   gateSkipCount: { type: Number, default: 0 },
   gateDurationMinutes: { type: Number, default: 5 },
+  theme: { type: String, default: 'system' },
   totalStudySeconds: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });

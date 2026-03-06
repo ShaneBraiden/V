@@ -6,7 +6,7 @@ import { saveSnippet, getSnippets } from '../api/learning';
 import EditorPanel from '../components/code/EditorPanel';
 import OutputPanel from '../components/code/OutputPanel';
 import LanguagePicker from '../components/code/LanguagePicker';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { Code2, Save, FolderOpen } from 'lucide-react';
 
 const DEFAULT_CODE = {
@@ -122,12 +122,12 @@ export default function CodePlayground() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading text-white flex items-center gap-2">
-          <Code2 className="text-neon-cyan" size={22} /> Code Playground
+        <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+          <Code2 className="text-brutal-mint" size={22} /> Code Playground
         </h1>
         <div className="flex items-center gap-2">
           <button onClick={handleLoadSnippets}
-            className="px-3 py-1.5 text-xs border border-border-dim rounded-lg text-gray-400 hover:border-neon-cyan hover:text-neon-cyan flex items-center gap-1">
+            className="px-3 py-1.5 text-xs border-2 border-brutal-black rounded-lg text-text-secondary hover:border-brutal-mint hover:text-brutal-mint flex items-center gap-1">
             <FolderOpen size={12} /> Snippets
           </button>
         </div>
@@ -136,7 +136,7 @@ export default function CodePlayground() {
       <LanguagePicker active={language} onChange={handleLanguageChange} />
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <NeonCard className="p-0 overflow-hidden">
+        <BrutalCard className="p-0 overflow-hidden">
           <EditorPanel
             code={code}
             language={language}
@@ -145,44 +145,44 @@ export default function CodePlayground() {
             onSave={handleSave}
             onAIReview={handleAIReview}
           />
-        </NeonCard>
+        </BrutalCard>
 
         <div className="space-y-4">
           <OutputPanel output={output} error={error} loading={running || pyLoading} />
 
           {aiReview && (
-            <NeonCard color="purple">
-              <h3 className="text-sm text-neon-purple mb-2">AI Review</h3>
-              <p className="text-sm text-gray-300 whitespace-pre-wrap">{aiReview}</p>
-            </NeonCard>
+            <BrutalCard color="purple">
+              <h3 className="text-sm text-brutal-purple mb-2">AI Review</h3>
+              <p className="text-sm text-text-primary whitespace-pre-wrap">{aiReview}</p>
+            </BrutalCard>
           )}
         </div>
       </div>
 
       {/* Snippet drawer */}
       {showSnippets && (
-        <NeonCard>
+        <BrutalCard>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm text-gray-400">Saved Snippets</h3>
-            <button onClick={() => setShowSnippets(false)} className="text-xs text-gray-600 hover:text-gray-400">Close</button>
+            <h3 className="text-sm text-text-secondary">Saved Snippets</h3>
+            <button onClick={() => setShowSnippets(false)} className="text-xs text-text-muted hover:text-text-secondary">Close</button>
           </div>
           {snippets.length === 0 ? (
-            <p className="text-xs text-gray-600">No saved snippets yet.</p>
+            <p className="text-xs text-text-muted">No saved snippets yet.</p>
           ) : (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {snippets.map((s, i) => (
                 <button key={s._id || i} onClick={() => { setLanguage(s.language); setCode(s.code); setShowSnippets(false); }}
-                  className="w-full text-left px-3 py-2 bg-bg-elevated rounded-lg text-xs text-gray-400 hover:text-neon-cyan hover:border-neon-cyan border border-border-dim transition-colors">
+                  className="w-full text-left px-3 py-2 bg-bg-elevated rounded-lg text-xs text-text-secondary hover:text-brutal-mint hover:border-brutal-mint border-2 border-brutal-black transition-colors">
                   <span className="font-mono">{s.language}</span> — {s.title || 'Untitled'}
                 </button>
               ))}
             </div>
           )}
-        </NeonCard>
+        </BrutalCard>
       )}
 
       {language === 'python' && pyLoading && (
-        <p className="text-xs text-neon-cyan animate-pulse text-center">Loading Python runtime (Pyodide)...</p>
+        <p className="text-xs text-brutal-mint animate-pulse text-center">Loading Python runtime (Pyodide)...</p>
       )}
     </div>
   );

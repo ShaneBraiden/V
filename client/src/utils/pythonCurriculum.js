@@ -1332,9 +1332,9 @@ for avg in running_avg([4, 8, 6, 2]):
 ];
 
 export const TOPIC_COLOR_CLASSES = {
-    cyan: { card: 'border-neon-cyan/30 hover:border-neon-cyan/60', badge: 'text-neon-cyan', ring: '#00F5D4', btn: 'btn-neon' },
-    purple: { card: 'border-neon-purple/30 hover:border-neon-purple/60', badge: 'text-neon-purple', ring: '#7B2FF7', btn: 'btn-neon-purple' },
-    gold: { card: 'border-neon-gold/30 hover:border-neon-gold/60', badge: 'text-neon-gold', ring: '#FFD60A', btn: 'btn-neon-gold' },
-    orange: { card: 'border-neon-orange/30 hover:border-neon-orange/60', badge: 'text-neon-orange', ring: '#FF6B35', btn: 'btn-neon-orange' },
-    magenta: { card: 'border-neon-magenta/30 hover:border-neon-magenta/60', badge: 'text-neon-magenta', ring: '#F72585', btn: 'btn-neon-pink' },
+    cyan: { card: 'border-2 border-brutal-black hover:shadow-brutal-sm', badge: 'text-brutal-mint', ring: '#88D8B0', btn: 'btn-brutal' },
+    purple: { card: 'border-2 border-brutal-black hover:shadow-brutal-sm', badge: 'text-brutal-purple', ring: '#8338EC', btn: 'btn-brutal-purple' },
+    gold: { card: 'border-2 border-brutal-black hover:shadow-brutal-sm', badge: 'text-brutal-yellow', ring: '#FFBE0B', btn: 'btn-brutal-yellow' },
+    orange: { card: 'border-2 border-brutal-black hover:shadow-brutal-sm', badge: 'text-brutal-orange', ring: '#FB5607', btn: 'btn-brutal' },
+    magenta: { card: 'border-2 border-brutal-black hover:shadow-brutal-sm', badge: 'text-brutal-pink', ring: '#FF006E', btn: 'btn-brutal-danger' },
 };

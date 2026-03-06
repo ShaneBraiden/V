@@ -47,7 +47,7 @@ export default function TypingEngine({ text = '', duration = 60, mode = 'words',
         />
         <button
           onClick={session.resetSession}
-          className="mt-4 px-4 py-2 bg-bg-elevated border border-border-dim rounded-lg text-gray-300 text-sm hover:border-neon-cyan flex items-center gap-2"
+          className="mt-4 px-5 py-2.5 bg-bg-elevated border-2 border-brutal-black shadow-[3px_3px_0px_var(--shadow-color)] text-text-primary text-sm font-semibold hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-150 flex items-center gap-2"
         >
           <RotateCcw size={14} /> Try Again
         </button>
@@ -59,12 +59,12 @@ export default function TypingEngine({ text = '', duration = 60, mode = 'words',
     <div>
       {!session.isActive ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 mb-4">Ready to type? Click start when prepared.</p>
+          <p className="text-text-muted mb-4">Ready to type? Click start when prepared.</p>
           <button
             onClick={session.startSession}
-            className="px-6 py-3 bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 rounded-xl font-semibold hover:bg-neon-cyan/30 transition-colors flex items-center gap-2 mx-auto"
+            className="px-8 py-4 bg-brutal-mint text-text-primary border-2 border-brutal-black shadow-[5px_5px_0px_var(--shadow-color)] font-bold text-base hover:shadow-none hover:translate-x-[5px] hover:translate-y-[5px] transition-all duration-150 flex items-center gap-3 mx-auto"
           >
-            <Play size={18} /> Start Session
+            <Play size={20} /> Start Session
           </button>
         </div>
       ) : (
@@ -72,12 +72,12 @@ export default function TypingEngine({ text = '', duration = 60, mode = 'words',
           {/* Timer and stats bar */}
           <div className="flex items-center justify-between mb-4 bg-bg-elevated rounded-lg px-4 py-2">
             <div className="flex items-center gap-4 text-sm">
-              <span className="font-mono text-neon-cyan text-lg">{formatTime(session.timeLeft)}</span>
-              <span className="text-gray-500">|</span>
-              <span className="text-gray-400">WPM: <span className="text-neon-cyan font-mono">{session.wpm}</span></span>
-              <span className="text-gray-400">Acc: <span className="text-neon-gold font-mono">{session.accuracy}%</span></span>
+              <span className="font-mono text-brutal-mint text-lg">{formatTime(session.timeLeft)}</span>
+              <span className="text-text-muted">|</span>
+              <span className="text-text-muted">WPM: <span className="text-brutal-mint font-mono">{session.wpm}</span></span>
+              <span className="text-text-muted">Acc: <span className="text-brutal-yellow font-mono">{session.accuracy}%</span></span>
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-text-muted">
               {nextKey && (
                 <span>Use: <span style={{ color: fingerInfo.color }}>{FINGER_NAMES[fingerInfo.finger]}</span></span>
               )}
@@ -85,14 +85,14 @@ export default function TypingEngine({ text = '', duration = 60, mode = 'words',
           </div>
 
           {/* Typing text */}
-          <div className="bg-bg-card border border-border-dim rounded-xl p-6 overflow-hidden">
+          <div className="bg-bg-card border border-brutal-black rounded-xl p-6 overflow-hidden">
             <TypingText text={text} currentIndex={session.currentIndex} keypresses={session.keypresses} />
           </div>
 
           {/* Progress bar */}
           <div className="mt-3 w-full h-1 bg-bg-elevated rounded-full overflow-hidden">
             <div
-              className="h-1 bg-neon-cyan rounded-full transition-all duration-200"
+              className="h-1 bg-brutal-mint rounded-full transition-all duration-200"
               style={{ width: `${session.progress * 100}%` }}
             />
           </div>

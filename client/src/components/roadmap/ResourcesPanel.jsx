@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 
 const TYPE_CONFIG = {
-    docs: { label: 'Docs', color: 'text-neon-cyan   border-neon-cyan/40   bg-neon-cyan/10' },
-    video: { label: 'Video', color: 'text-neon-magenta border-neon-magenta/40 bg-neon-magenta/10' },
-    course: { label: 'Course', color: 'text-neon-gold   border-neon-gold/40   bg-neon-gold/10' },
-    book: { label: 'Book', color: 'text-neon-purple  border-neon-purple/40  bg-neon-purple/10' },
+    docs: { label: 'Docs', color: 'text-brutal-mint   border-brutal-mint/40   bg-brutal-mint/10' },
+    video: { label: 'Video', color: 'text-brutal-pink border-brutal-pink/40 bg-brutal-pink/10' },
+    course: { label: 'Course', color: 'text-brutal-yellow   border-brutal-yellow/40   bg-brutal-yellow/10' },
+    book: { label: 'Book', color: 'text-brutal-purple  border-brutal-purple/40  bg-brutal-purple/10' },
 };
 
 export default function ResourcesPanel({ resources = [] }) {
@@ -15,10 +15,10 @@ export default function ResourcesPanel({ resources = [] }) {
     if (!resources.length) return null;
 
     return (
-        <div className="mt-3 border-t border-border-dim pt-3">
+        <div className="mt-3 border-t border-brutal-black pt-3">
             <button
                 onClick={() => setOpen((v) => !v)}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-neon-cyan transition-colors w-full"
+                className="flex items-center gap-1.5 text-xs text-text-muted hover:text-brutal-mint transition-colors w-full"
             >
                 <BookOpen size={13} />
                 <span className="font-medium">Resources ({resources.length})</span>
@@ -37,7 +37,7 @@ export default function ResourcesPanel({ resources = [] }) {
                                     href={r.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-xs text-gray-300 hover:text-white transition-colors group"
+                                    className="flex items-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors group"
                                 >
                                     <span
                                         className={`shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-mono font-semibold ${cfg.color}`}

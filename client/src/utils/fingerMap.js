@@ -1,15 +1,15 @@
 /** @fileoverview Keyboard finger-to-key mapping and color assignments */
 
 export const FINGER_COLORS = {
-  leftPinky: '#7B2FF7',
-  leftRing: '#4361EE',
-  leftMiddle: '#00F5D4',
-  leftIndex: '#FFD60A',
-  rightIndex: '#FF6B35',
-  rightMiddle: '#00F5D4',
-  rightRing: '#4361EE',
-  rightPinky: '#7B2FF7',
-  thumbs: '#E2E8F0',
+  leftPinky: '#8338EC',
+  leftRing: '#4895EF',
+  leftMiddle: '#88D8B0',
+  leftIndex: '#FFBE0B',
+  rightIndex: '#FB5607',
+  rightMiddle: '#88D8B0',
+  rightRing: '#4895EF',
+  rightPinky: '#8338EC',
+  thumbs: '#A388EE',
 };
 
 export const FINGER_NAMES = {
@@ -50,10 +50,10 @@ const buildFingerMap = () => {
 export const FINGER_MAP = buildFingerMap();
 
 /** Get finger info for a key character */
-export const getFingerForKey = (key) => FINGER_MAP[key] || { finger: 'unknown', hand: 'unknown', color: '#64748B' };
+export const getFingerForKey = (key) => FINGER_MAP[key] || { finger: 'unknown', hand: 'unknown', color: 'var(--text-muted)' };
 
 /** Get color for a key character */
-export const getColorForKey = (key) => (FINGER_MAP[key]?.color) || '#64748B';
+export const getColorForKey = (key) => (FINGER_MAP[key]?.color) || 'var(--text-muted)';
 
 /** Standard QWERTY keyboard layout for SVG rendering */
 export const KEYBOARD_LAYOUT = [

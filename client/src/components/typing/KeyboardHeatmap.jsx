@@ -3,9 +3,9 @@ import { KEYBOARD_LAYOUT, getColorForKey } from '../../utils/fingerMap';
 
 function getHeatColor(errorRate) {
   if (errorRate <= 0.02) return '#22c55e'; // green
-  if (errorRate <= 0.05) return '#FFD60A'; // gold
-  if (errorRate <= 0.10) return '#FF6B35'; // orange
-  return '#F72585'; // red/magenta
+  if (errorRate <= 0.05) return '#FFBE0B'; // yellow
+  if (errorRate <= 0.10) return '#FB5607'; // orange
+  return '#FF006E'; // pink
 }
 
 const KEY_WIDTHS = {
@@ -37,16 +37,16 @@ export default function KeyboardHeatmap({ keyStats = {} }) {
                   height={keyHeight - 2}
                   rx={6}
                   fill={fill}
-                  fillOpacity={0.15}
-                  stroke={fill}
-                  strokeOpacity={0.4}
+                  fillOpacity={0.2}
+                  stroke="var(--color-border)"
+                  strokeOpacity={0.3}
                   strokeWidth={1.5}
                 />
                 <text
                   x={x + (w - 2) / 2}
                   y={row * (keyHeight + gap) + 10 + (keyHeight - 2) / 2 + 4}
                   textAnchor="middle"
-                  fill={fill}
+                  fill="var(--text-primary)"
                   fontSize={key.length > 1 ? 9 : 13}
                   fontFamily="JetBrains Mono, monospace"
                 >
@@ -64,13 +64,13 @@ export default function KeyboardHeatmap({ keyStats = {} }) {
       <div className="flex justify-center gap-4 mt-3 text-xs">
         {[
           { color: '#22c55e', label: '< 2% errors' },
-          { color: '#FFD60A', label: '2-5% errors' },
-          { color: '#FF6B35', label: '5-10% errors' },
-          { color: '#F72585', label: '> 10% errors' },
+          { color: '#FFBE0B', label: '2-5% errors' },
+          { color: '#FB5607', label: '5-10% errors' },
+          { color: '#FF006E', label: '> 10% errors' },
         ].map(({ color, label }) => (
           <div key={color} className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: color, opacity: 0.5 }} />
-            <span className="text-gray-500">{label}</span>
+            <span className="text-text-muted">{label}</span>
           </div>
         ))}
       </div>

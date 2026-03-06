@@ -31,11 +31,46 @@ router.get('/', auth, async (req, res) => {
 
 router.put('/', auth, async (req, res) => {
   try {
-    const progress = await Progress.findOneAndUpdate(
-      { userId: req.user.userId },
-      { $set: req.body },
-      { new: true, upsert: true }
-    );
+    let progress = await Progress.findOne({ userId: req.user.userId });
+    if (!progress) {
+      progress = new Progress({ userId: req.user.userId });
+    }
+
+    if (req.body.lessonProgress) {
+      for (const [k, v] of Object.entries(req.body.lessonProgress)) progress.lessonProgress.set(k, v);
+    }
+    if (req.body.levelProgress) {
+      for (const [k, v] of Object.entries(req.body.levelProgress)) progress.levelProgress.set(k, v);
+    }
+    if (req.body.personalBests) {
+      for (const [k, v] of Object.entries(req.body.personalBests)) progress.personalBests.set(k, v);
+    }
+
+    if (req.body.techProgress) {
+      for (const [k, v] of Object.entries(req.body.techProgress)) {
+        const existing = progress.techProgress.get(k);
+        if (existing) existing.set(v);
+        else progress.techProgress.set(k, v);
+      }
+    }
+
+    if (req.body.projectProgress) {
+      for (const [k, v] of Object.entries(req.body.projectProgress)) {
+        const existing = progress.projectProgress.get(k);
+        if (existing) {
+          if (v.status) existing.status = v.status;
+          if (v.checklistItems) {
+            for (const [ck, cv] of Object.entries(v.checklistItems)) {
+              existing.checklistItems.set(ck, cv);
+            }
+          }
+        } else {
+          progress.projectProgress.set(k, v);
+        }
+      }
+    }
+
+    await progress.save();
     res.json(progress);
   } catch (error) {
     res.status(500).json({ message: error.message });

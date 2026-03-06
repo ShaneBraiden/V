@@ -29,7 +29,7 @@ export const TECH_BY_ID = Object.fromEntries(ALL_TECHS.map(t => [t.id, t]));
 
 /** Layer tag colors */
 export const LAYER_COLORS = {
-    Foundation: 'text-neon-cyan border-neon-cyan/30',
-    Advanced: 'text-neon-purple border-neon-purple/30',
-    Expert: 'text-neon-gold border-neon-gold/30',
+    Foundation: 'text-brutal-mint border-2 border-brutal-black',
+    Advanced: 'text-brutal-purple border-2 border-brutal-black',
+    Expert: 'text-brutal-yellow border-2 border-brutal-black',
 };

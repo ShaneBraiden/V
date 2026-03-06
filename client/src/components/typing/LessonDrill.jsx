@@ -1,7 +1,7 @@
 /** @fileoverview Interactive lesson drill view — wraps TypingEngine for a specific lesson */
 import { useCallback, useState } from 'react';
 import TypingEngine from './TypingEngine';
-import NeonCard from '../ui/NeonCard';
+import BrutalCard from '../ui/BrutalCard';
 import { ArrowLeft, ChevronRight, Target, Trophy, Zap } from 'lucide-react';
 import { saveSession } from '../../api/typing';
 import { addXP } from '../../api/progress';
@@ -15,15 +15,15 @@ export default function LessonDrill({ level, lesson, lessonIndex, onBack, onNext
     const [result, setResult] = useState(null);
 
     const levelColor = {
-        1: 'text-neon-cyan  border-neon-cyan/40',
-        2: 'text-neon-cyan  border-neon-cyan/40',
-        3: 'text-neon-blue  border-neon-blue/40',
-        4: 'text-neon-blue  border-neon-blue/40',
-        5: 'text-neon-gold  border-neon-gold/40',
-        6: 'text-neon-gold  border-neon-gold/40',
-        7: 'text-neon-purple border-neon-purple/40',
-        8: 'text-neon-purple border-neon-purple/40',
-    }[level.id?.replace('L', '')] || 'text-neon-cyan border-neon-cyan/40';
+        1: 'text-brutal-mint  border-brutal-mint/40',
+        2: 'text-brutal-mint  border-brutal-mint/40',
+        3: 'text-brutal-blue  border-brutal-blue/40',
+        4: 'text-brutal-blue  border-brutal-blue/40',
+        5: 'text-brutal-yellow  border-brutal-yellow/40',
+        6: 'text-brutal-yellow  border-brutal-yellow/40',
+        7: 'text-brutal-purple border-brutal-purple/40',
+        8: 'text-brutal-purple border-brutal-purple/40',
+    }[level.id?.replace('L', '')] || 'text-brutal-mint border-brutal-mint/40';
 
     const handleComplete = useCallback(async (data) => {
         setResult(data);
@@ -57,74 +57,74 @@ export default function LessonDrill({ level, lesson, lessonIndex, onBack, onNext
             <div className="flex items-center gap-3">
                 <button
                     onClick={onBack}
-                    className="p-1.5 rounded-lg border border-border-dim text-gray-400 hover:text-neon-cyan hover:border-neon-cyan/40 transition-colors"
+                    className="p-1.5 rounded-lg border border-brutal-black text-text-muted hover:text-brutal-mint hover:border-brutal-mint/40 transition-colors"
                 >
                     <ArrowLeft size={16} />
                 </button>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2 text-sm text-text-muted">
                     <span>{level.name}</span>
-                    <ChevronRight size={14} className="text-gray-600" />
-                    <span className="text-white font-semibold">{lesson.title}</span>
+                    <ChevronRight size={14} className="text-text-muted" />
+                    <span className="text-text-primary font-semibold">{lesson.title}</span>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                     <span className={`text-xs px-2 py-0.5 rounded border font-mono ${levelColor}`}>
                         <Target size={10} className="inline mr-1" />
                         {level.wpmTarget} WPM target
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded border border-neon-gold/40 text-neon-gold font-mono">
+                    <span className="text-xs px-2 py-0.5 rounded border border-brutal-yellow/40 text-brutal-yellow font-mono">
                         <Zap size={10} className="inline mr-1" />+75 XP
                     </span>
                 </div>
             </div>
 
             {/* Lesson info bar */}
-            <NeonCard className="flex items-center justify-between py-2 px-4">
+            <BrutalCard className="flex items-center justify-between py-2 px-4">
                 <div>
-                    <p className="text-xs text-gray-500 mb-0.5">Focus keys</p>
-                    <p className="font-mono text-sm text-neon-cyan tracking-widest">{level.keys}</p>
+                    <p className="text-xs text-text-muted mb-0.5">Focus keys</p>
+                    <p className="font-mono text-sm text-brutal-mint tracking-widest">{level.keys}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-xs text-gray-500 mb-0.5">Lesson {lessonIndex + 1} of {level.lessons.length}</p>
+                    <p className="text-xs text-text-muted mb-0.5">Lesson {lessonIndex + 1} of {level.lessons.length}</p>
                     <div className="flex gap-1">
                         {level.lessons.map((_, i) => (
                             <div
                                 key={i}
-                                className={`h-1.5 w-6 rounded-full transition-colors ${i < lessonIndex ? 'bg-neon-cyan' : i === lessonIndex ? 'bg-neon-cyan/60' : 'bg-bg-elevated'
+                                className={`h-1.5 w-6 rounded-full transition-colors ${i < lessonIndex ? 'bg-brutal-mint' : i === lessonIndex ? 'bg-brutal-mint/60' : 'bg-bg-elevated'
                                     }`}
                             />
                         ))}
                     </div>
                 </div>
-            </NeonCard>
+            </BrutalCard>
 
             {/* Result overlay (shown only after done) */}
             {done && result ? (
-                <NeonCard className="space-y-4">
+                <BrutalCard className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <Trophy size={24} className={isPass ? 'text-neon-gold' : 'text-gray-500'} />
+                        <Trophy size={24} className={isPass ? 'text-brutal-yellow' : 'text-text-muted'} />
                         <div>
-                            <h3 className="font-heading text-white font-bold">
+                            <h3 className="font-heading text-text-primary font-bold">
                                 {isPass ? 'Lesson Complete!' : 'Keep Practising!'}
                             </h3>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-text-muted">
                                 {isPass
                                     ? `You hit ${result.wpm} WPM — above the ${level.wpmTarget} WPM target.`
                                     : `You got ${result.wpm} WPM. Target is ${level.wpmTarget} WPM.`}
                             </p>
                         </div>
-                        <span className="ml-auto text-neon-gold font-mono text-sm font-bold">+75 XP</span>
+                        <span className="ml-auto text-brutal-yellow font-mono text-sm font-bold">+75 XP</span>
                     </div>
 
                     {/* Stats grid */}
                     <div className="grid grid-cols-3 gap-3">
                         {[
-                            { label: 'WPM', value: result.wpm, color: 'text-neon-cyan' },
-                            { label: 'Accuracy', value: `${result.accuracy}%`, color: 'text-neon-gold' },
-                            { label: 'Errors', value: result.errors ?? 0, color: 'text-neon-magenta' },
+                            { label: 'WPM', value: result.wpm, color: 'text-brutal-mint' },
+                            { label: 'Accuracy', value: `${result.accuracy}%`, color: 'text-brutal-yellow' },
+                            { label: 'Errors', value: result.errors ?? 0, color: 'text-brutal-pink' },
                         ].map(({ label, value, color }) => (
                             <div key={label} className="bg-bg-elevated rounded-lg p-3 text-center">
                                 <p className={`text-xl font-mono font-bold ${color}`}>{value}</p>
-                                <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+                                <p className="text-xs text-text-muted mt-0.5">{label}</p>
                             </div>
                         ))}
                     </div>
@@ -133,19 +133,19 @@ export default function LessonDrill({ level, lesson, lessonIndex, onBack, onNext
                         {hasNext && (
                             <button
                                 onClick={onNext}
-                                className="flex-1 py-2.5 bg-neon-cyan text-bg-primary rounded-lg text-sm font-bold hover:bg-neon-cyan/90 transition-colors"
+                                className="flex-1 py-2.5 bg-brutal-mint text-bg-primary rounded-lg text-sm font-bold hover:bg-brutal-mint/90 transition-colors"
                             >
                                 Next Lesson →
                             </button>
                         )}
                         <button
                             onClick={onBack}
-                            className={`${hasNext ? '' : 'flex-1'} py-2.5 px-4 border border-border-dim text-gray-300 rounded-lg text-sm hover:border-neon-cyan hover:text-neon-cyan transition-colors`}
+                            className={`${hasNext ? '' : 'flex-1'} py-2.5 px-4 border border-brutal-black text-text-secondary rounded-lg text-sm hover:border-brutal-mint hover:text-brutal-mint transition-colors`}
                         >
                             {hasNext ? 'Back to Lessons' : '← Back to Lessons'}
                         </button>
                     </div>
-                </NeonCard>
+                </BrutalCard>
             ) : (
                 /* Typing engine */
                 <TypingEngine

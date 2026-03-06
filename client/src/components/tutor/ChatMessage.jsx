@@ -7,9 +7,9 @@ function InlineMd({ text }) {
   let last = 0, m;
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) parts.push(<span key={last}>{text.slice(last, m.index)}</span>);
-    if (m[2]) parts.push(<strong key={m.index} className="text-white font-semibold">{m[2]}</strong>);
-    else if (m[3]) parts.push(<em key={m.index} className="text-gray-200 italic">{m[3]}</em>);
-    else if (m[4]) parts.push(<code key={m.index} className="bg-bg-elevated text-neon-cyan font-mono text-xs px-1.5 py-0.5 rounded">{m[4]}</code>);
+    if (m[2]) parts.push(<strong key={m.index} className="text-text-primary font-semibold">{m[2]}</strong>);
+    else if (m[3]) parts.push(<em key={m.index} className="text-text-primary italic">{m[3]}</em>);
+    else if (m[4]) parts.push(<code key={m.index} className="bg-bg-elevated text-brutal-mint font-mono text-xs px-1.5 py-0.5 rounded">{m[4]}</code>);
     last = m.index + m[0].length;
   }
   if (last < text.length) parts.push(<span key={last}>{text.slice(last)}</span>);
@@ -35,7 +35,7 @@ function MarkdownBody({ content }) {
         i++;
       }
       nodes.push(
-        <pre key={i} className="bg-bg-elevated rounded-lg p-3 my-2 overflow-x-auto text-xs font-mono text-gray-300 leading-relaxed">
+        <pre key={i} className="bg-bg-elevated rounded-lg p-3 my-2 overflow-x-auto text-xs font-mono text-text-secondary leading-relaxed">
           <code>{codeLines.join('\n')}</code>
         </pre>
       );
@@ -47,7 +47,7 @@ function MarkdownBody({ content }) {
     if (/^#{1,3} /.test(line)) {
       const level = line.match(/^(#+)/)[1].length;
       const txt = line.replace(/^#+\s/, '');
-      const cls = level === 1 ? 'text-base font-bold text-white mt-2 mb-1' : 'text-sm font-semibold text-gray-100 mt-1.5 mb-0.5';
+      const cls = level === 1 ? 'text-base font-bold text-text-primary mt-2 mb-1' : 'text-sm font-semibold text-text-primary mt-1.5 mb-0.5';
       nodes.push(<div key={i} className={cls}><InlineMd text={txt} /></div>);
       i++;
       continue;
@@ -57,7 +57,7 @@ function MarkdownBody({ content }) {
     if (/^[\-\*] /.test(line)) {
       nodes.push(
         <div key={i} className="flex gap-2 my-0.5">
-          <span className="text-neon-cyan mt-0.5 shrink-0">•</span>
+          <span className="text-brutal-mint mt-0.5 shrink-0">•</span>
           <span><InlineMd text={line.slice(2)} /></span>
         </div>
       );
@@ -70,7 +70,7 @@ function MarkdownBody({ content }) {
       const num = line.match(/^(\d+)\. /)[1];
       nodes.push(
         <div key={i} className="flex gap-2 my-0.5">
-          <span className="text-neon-cyan shrink-0 font-mono text-xs mt-0.5">{num}.</span>
+          <span className="text-brutal-mint shrink-0 font-mono text-xs mt-0.5">{num}.</span>
           <span><InlineMd text={line.replace(/^\d+\. /, '')} /></span>
         </div>
       );
@@ -100,8 +100,8 @@ export default function ChatMessage({ message }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
       <div
         className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${isUser
-          ? 'bg-neon-blue/20 border border-neon-blue/30 text-gray-200 rounded-br-sm'
-          : 'bg-neon-purple/10 border border-neon-purple/30 text-gray-300 rounded-bl-sm'
+          ? 'bg-brutal-blue/20 border border-brutal-blue/30 text-text-primary rounded-br-sm'
+          : 'bg-brutal-purple/10 border border-brutal-purple/30 text-text-secondary rounded-bl-sm'
           }`}
       >
         <div className="text-xs mb-1.5 opacity-50">{isUser ? 'You' : 'V Tutor'}</div>

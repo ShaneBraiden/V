@@ -28,6 +28,7 @@ const useTypingAnalysis = () => {
     setError(null);
     try {
       const data = await apiGetReport();
+      if (!data) return; // no analysis yet — server returns null
       setReport(data.report || data);
       if (data.geminiAdvice) setAdvice(data.geminiAdvice);
       return data;

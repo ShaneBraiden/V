@@ -75,7 +75,8 @@ router.put('/profile', auth, async (req, res) => {
       'name', 'avatar', 'activeTechId', 'onboardingComplete',
       'weeklyHourTarget', 'reminderEnabled', 'reminderTime',
       'gateDurationMinutes', 'lastGateDate', 'gateSkipCount',
-      'totalStudySeconds', 'streak', 'xp', 'level', 'rank'
+      'totalStudySeconds', 'streak', 'xp', 'level', 'rank',
+      'theme'
     ];
     const updates = {};
     for (const key of allowed) {

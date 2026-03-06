@@ -11,24 +11,14 @@ export default function StudyChart({ data = [] }) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={chartData}>
-        <defs>
-          <linearGradient id="typingGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#00F5D4" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#00F5D4" stopOpacity={0} />
-          </linearGradient>
-          <linearGradient id="learningGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7B2FF7" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#7B2FF7" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <XAxis dataKey="day" stroke="#64748B" fontSize={10} tickLine={false} />
-        <YAxis stroke="#64748B" fontSize={10} tickLine={false} unit="m" />
+        <XAxis dataKey="day" stroke="var(--color-chart-axis)" fontSize={10} tickLine={false} />
+        <YAxis stroke="var(--color-chart-axis)" fontSize={10} tickLine={false} unit="m" />
         <Tooltip
-          contentStyle={{ background: '#111827', border: '1px solid #1E293B', borderRadius: 8, color: '#E2E8F0' }}
+          contentStyle={{ background: 'var(--bg-card)', border: '2px solid var(--color-border)', borderRadius: 8, color: 'var(--text-primary)' }}
           formatter={(v, name) => [`${v}m`, name === 'typing' ? 'Typing' : 'Lessons']}
         />
-        <Area type="monotone" dataKey="typing" stroke="#00F5D4" fill="url(#typingGrad)" strokeWidth={2} name="Typing" />
-        <Area type="monotone" dataKey="learning" stroke="#7B2FF7" fill="url(#learningGrad)" strokeWidth={2} name="Lessons" />
+        <Area type="monotone" dataKey="typing" stroke="#88D8B0" fill="#88D8B0" fillOpacity={0.15} strokeWidth={2} name="Typing" />
+        <Area type="monotone" dataKey="learning" stroke="#8338EC" fill="#8338EC" fillOpacity={0.15} strokeWidth={2} name="Lessons" />
       </AreaChart>
     </ResponsiveContainer>
   );

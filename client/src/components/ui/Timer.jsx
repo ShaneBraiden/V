@@ -7,9 +7,9 @@ export default function Timer({ seconds = 0, isRunning = false, onToggle, mode =
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {label && <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>}
-      <Clock size={16} className={`${isRunning ? 'text-neon-cyan' : 'text-gray-500'}`} />
-      <span className={`font-mono text-sm font-semibold ${isRunning ? 'text-neon-cyan' : 'text-gray-400'}`}>
+      {label && <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>}
+      <Clock size={16} className={`${isRunning ? 'text-brutal-mint' : 'text-text-muted'}`} />
+      <span className={`font-mono text-sm font-semibold ${isRunning ? 'text-brutal-mint' : 'text-text-secondary'}`}>
         {formatTime(displayTime)}
       </span>
       {onToggle && (
@@ -17,7 +17,7 @@ export default function Timer({ seconds = 0, isRunning = false, onToggle, mode =
           onClick={onToggle}
           className="p-1 rounded hover:bg-bg-elevated transition-colors"
         >
-          {isRunning ? <Pause size={14} className="text-gray-400" /> : <Play size={14} className="text-neon-cyan" />}
+          {isRunning ? <Pause size={14} className="text-text-secondary" /> : <Play size={14} className="text-brutal-mint" />}
         </button>
       )}
     </div>

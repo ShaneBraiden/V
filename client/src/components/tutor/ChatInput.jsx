@@ -19,14 +19,14 @@ export default function ChatInput({ onSend, loading, suggestedPrompts = [] }) {
   };
 
   return (
-    <div className="border-t border-border-dim bg-bg-card p-4">
+    <div className="border-t border-brutal-black bg-bg-card p-4">
       {suggestedPrompts.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {suggestedPrompts.map((prompt, i) => (
             <button
               key={i}
               onClick={() => onSend(prompt)}
-              className="text-xs px-3 py-1.5 rounded-full border border-border-dim text-gray-400 hover:border-neon-purple hover:text-neon-purple transition-colors"
+              className="text-xs px-3 py-1.5 rounded-full border border-brutal-black text-text-muted hover:border-brutal-purple hover:text-brutal-purple transition-colors"
             >
               {prompt}
             </button>
@@ -40,12 +40,12 @@ export default function ChatInput({ onSend, loading, suggestedPrompts = [] }) {
           onKeyDown={handleKeyDown}
           placeholder="Ask your tutor anything..."
           rows={1}
-          className="flex-1 bg-bg-primary border border-border-dim rounded-lg px-4 py-2.5 text-sm text-gray-200 resize-none focus:outline-none focus:border-neon-purple"
+          className="flex-1 bg-bg-primary border border-brutal-black rounded-lg px-4 py-2.5 text-sm text-text-primary resize-none focus:outline-none focus:border-brutal-purple"
         />
         <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          className="btn-neon-purple px-4 disabled:opacity-50"
+          className="btn-brutal-purple px-4 disabled:opacity-50"
         >
           {loading ? <span className="animate-pulse">...</span> : <Send size={16} />}
         </button>

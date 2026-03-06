@@ -58,4 +58,32 @@ Rules: Connect answers to their learning context. Be specific and practical. Use
   return result.response.text();
 };
 
-module.exports = { getTypingAdvice, chatWithTutor };
+/**
+ * Review a student's Python challenge solution using Gemini
+ */
+const reviewPythonCode = async (code, challengeTitle, instructions) => {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const prompt = `You are a friendly Python tutor reviewing a student's challenge solution inside a coding learning app.
+
+Challenge: "${challengeTitle}"
+Instructions: ${instructions}
+
+Student's code:
+\`\`\`python
+${code}
+\`\`\`
+
+Give a concise, encouraging review in 3–5 sentences covering:
+1. Whether the approach is correct and why
+2. One specific thing they did well
+3. One concrete improvement or alternative approach (if any)
+
+Keep it conversational, supportive, and practical. Do NOT use markdown headers. Plain text only.`;
+
+  const result = await model.generateContent(prompt);
+  return result.response.text().trim();
+};
+
+module.exports = { getTypingAdvice, chatWithTutor, reviewPythonCode };

@@ -6,7 +6,7 @@ import useAppStore from '../store/useAppStore';
 import FlashCard from '../components/flashcards/FlashCard';
 import CardControls from '../components/flashcards/CardControls';
 import TechFilter from '../components/resources/TechFilter';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { Layers, Shuffle, RotateCcw } from 'lucide-react';
 
 function shuffleArray(arr) {
@@ -83,24 +83,24 @@ export default function Flashcards() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading text-white flex items-center gap-2">
-          <Layers className="text-neon-cyan" size={22} /> Flashcards
+        <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+          <Layers className="text-brutal-mint" size={22} /> Flashcards
         </h1>
-        <span className="text-sm text-gray-500">{cards.length} cards</span>
+        <span className="text-sm text-text-muted">{cards.length} cards</span>
       </div>
 
       <TechFilter value={techFilter} onChange={setTechFilter} />
 
       {loading ? (
-        <NeonCard className="text-center py-16">
-          <p className="text-gray-500 animate-pulse">Loading flashcards...</p>
-        </NeonCard>
+        <BrutalCard className="text-center py-16">
+          <p className="text-text-muted animate-pulse">Loading flashcards...</p>
+        </BrutalCard>
       ) : cards.length === 0 ? (
-        <NeonCard className="text-center py-16">
-          <Layers size={32} className="mx-auto text-gray-600 mb-3" />
-          <p className="text-gray-500 text-sm">No flashcards available for this technology.</p>
-          <p className="text-gray-600 text-xs mt-1">Run the seed script to populate flashcards.</p>
-        </NeonCard>
+        <BrutalCard className="text-center py-16">
+          <Layers size={32} className="mx-auto text-text-muted mb-3" />
+          <p className="text-text-muted text-sm">No flashcards available for this technology.</p>
+          <p className="text-text-muted text-xs mt-1">Run the seed script to populate flashcards.</p>
+        </BrutalCard>
       ) : (
         <>
           <FlashCard card={currentCard} onResponse={handleResponse} />
@@ -117,23 +117,23 @@ export default function Flashcards() {
       )}
 
       {stats.reviewed > 0 && (
-        <NeonCard className="text-center">
-          <h3 className="text-sm text-gray-400 mb-2">Session Progress</h3>
+        <BrutalCard className="text-center">
+          <h3 className="text-sm text-text-secondary mb-2">Session Progress</h3>
           <div className="flex justify-center gap-6 text-sm">
             <div>
-              <span className="text-neon-cyan font-mono text-lg">{stats.gotIt}</span>
-              <p className="text-xs text-gray-500">Got It</p>
+              <span className="text-brutal-mint font-mono text-lg">{stats.gotIt}</span>
+              <p className="text-xs text-text-muted">Got It</p>
             </div>
             <div>
-              <span className="text-gray-400 font-mono text-lg">{stats.learning}</span>
-              <p className="text-xs text-gray-500">Learning</p>
+              <span className="text-text-secondary font-mono text-lg">{stats.learning}</span>
+              <p className="text-xs text-text-muted">Learning</p>
             </div>
             <div>
-              <span className="text-neon-magenta font-mono text-lg">{stats.hard}</span>
-              <p className="text-xs text-gray-500">Hard</p>
+              <span className="text-brutal-pink font-mono text-lg">{stats.hard}</span>
+              <p className="text-xs text-text-muted">Hard</p>
             </div>
           </div>
-        </NeonCard>
+        </BrutalCard>
       )}
     </div>
   );

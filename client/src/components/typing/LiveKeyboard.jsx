@@ -38,38 +38,24 @@ export default function LiveKeyboard({ nextKey = '', mode = 'finger' }) {
                   width={w - 2}
                   height={keyHeight - 2}
                   rx={6}
-                  fill={isNext ? color : '#111827'}
-                  fillOpacity={isNext ? 0.3 : 0.8}
-                  stroke={isNext ? color : color}
-                  strokeOpacity={isNext ? 1 : 0.3}
-                  strokeWidth={isNext ? 2.5 : 1}
-                  style={isNext ? { filter: `drop-shadow(0 0 6px ${color})` } : {}}
+                  fill={isNext ? '#FFBE0B' : 'var(--bg-card)'}
+                  fillOpacity={isNext ? 0.6 : 0.9}
+                  stroke={isNext ? 'var(--color-border)' : color}
+                  strokeOpacity={isNext ? 1 : 0.4}
+                  strokeWidth={isNext ? 2.5 : 1.5}
                 />
                 <text
                   x={x + (w - 2) / 2}
                   y={row * (keyHeight + gap) + 10 + (keyHeight - 2) / 2 + 4}
                   textAnchor="middle"
-                  fill={isNext ? '#FFFFFF' : color}
-                  fillOpacity={isNext ? 1 : 0.7}
+                  fill={isNext ? 'var(--text-primary)' : color}
+                  fillOpacity={isNext ? 1 : 0.8}
                   fontSize={key.length > 1 ? 9 : 13}
                   fontFamily="JetBrains Mono, monospace"
                   fontWeight={isNext ? 'bold' : 'normal'}
                 >
                   {key.length > 5 ? key.slice(0, 3) : key}
                 </text>
-                {isNext && (
-                  <rect
-                    x={x}
-                    y={row * (keyHeight + gap) + 10}
-                    width={w - 2}
-                    height={keyHeight - 2}
-                    rx={6}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={2}
-                    className="animate-pulse"
-                  />
-                )}
               </g>
             );
             x += w + gap;
@@ -81,9 +67,9 @@ export default function LiveKeyboard({ nextKey = '', mode = 'finger' }) {
       {/* Finger hint for next key */}
       {nextKey && (
         <div className="text-center mt-2 text-sm">
-          <span className="text-gray-500">Next: </span>
-          <span className="text-neon-cyan font-mono font-bold">{nextKey === ' ' ? 'SPACE' : nextKey.toUpperCase()}</span>
-          <span className="text-gray-500 ml-2">USE: </span>
+          <span className="text-text-muted">Next: </span>
+          <span className="text-brutal-mint font-mono font-bold">{nextKey === ' ' ? 'SPACE' : nextKey.toUpperCase()}</span>
+          <span className="text-text-muted ml-2">USE: </span>
           <span style={{ color: getColorForKey(nextKey) }} className="font-semibold">
             {FINGER_NAMES[getFingerForKey(nextKey).finger] || 'Unknown'}
           </span>
@@ -92,7 +78,7 @@ export default function LiveKeyboard({ nextKey = '', mode = 'finger' }) {
 
       {/* Hover tooltip */}
       {hoveredKey && (
-        <div className="text-center mt-1 text-xs text-gray-500">
+        <div className="text-center mt-1 text-xs text-text-muted">
           <span className="font-mono">{hoveredKey}</span> — {FINGER_NAMES[getFingerForKey(hoveredKey).finger]}
         </div>
       )}
@@ -102,7 +88,7 @@ export default function LiveKeyboard({ nextKey = '', mode = 'finger' }) {
         {Object.entries(FINGER_COLORS).map(([finger, color]) => (
           <div key={finger} className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: color, opacity: 0.6 }} />
-            <span className="text-gray-500">{FINGER_NAMES[finger]}</span>
+            <span className="text-text-muted">{FINGER_NAMES[finger]}</span>
           </div>
         ))}
       </div>

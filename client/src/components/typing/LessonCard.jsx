@@ -6,37 +6,37 @@ export default function LessonCard({ lesson, isUnlocked = false, isComplete = fa
     <div
       className={`p-4 rounded-xl border transition-all ${
         isComplete
-          ? 'bg-green-500/5 border-green-500/30'
+          ? 'bg-success-muted border-success-border'
           : isCurrent
-          ? 'bg-neon-cyan/5 border-neon-cyan/30 shadow-neon'
+          ? 'bg-brutal-mint/5 border-brutal-mint/30 shadow-brutal-md'
           : isUnlocked
-          ? 'bg-bg-card border-border-dim hover:border-gray-600 cursor-pointer'
-          : 'bg-bg-card/50 border-border-dim opacity-60'
+          ? 'bg-bg-card border-brutal-black hover:border-border-muted cursor-pointer'
+          : 'bg-bg-card/50 border-brutal-black opacity-60'
       }`}
       onClick={() => isUnlocked && !isComplete && onStart && onStart(lesson)}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            isComplete ? 'bg-green-500/20' : isCurrent ? 'bg-neon-cyan/20' : 'bg-bg-elevated'
+            isComplete ? 'bg-success-soft' : isCurrent ? 'bg-brutal-mint/20' : 'bg-bg-elevated'
           }`}>
             {isComplete ? (
-              <Check size={16} className="text-green-400" />
+              <Check size={16} className="text-success-text" />
             ) : !isUnlocked ? (
-              <Lock size={14} className="text-gray-600" />
+              <Lock size={14} className="text-text-muted" />
             ) : (
-              <Play size={14} className={`${isCurrent ? 'text-neon-cyan' : 'text-gray-400'}`} />
+              <Play size={14} className={`${isCurrent ? 'text-brutal-mint' : 'text-text-muted'}`} />
             )}
           </div>
           <div>
-            <h4 className={`text-sm font-semibold ${isComplete ? 'text-green-400' : isCurrent ? 'text-neon-cyan' : 'text-gray-300'}`}>
+            <h4 className={`text-sm font-semibold ${isComplete ? 'text-success-text' : isCurrent ? 'text-brutal-mint' : 'text-text-secondary'}`}>
               {lesson.name}
             </h4>
-            <p className="text-xs text-gray-500">{lesson.keys} — {lesson.wpmTarget} WPM target</p>
+            <p className="text-xs text-text-muted">{lesson.keys} — {lesson.wpmTarget} WPM target</p>
           </div>
         </div>
         {isUnlocked && !isComplete && (
-          <span className="text-xs text-neon-cyan">+75 XP</span>
+          <span className="text-xs text-brutal-mint">+75 XP</span>
         )}
       </div>
     </div>

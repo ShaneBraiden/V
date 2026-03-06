@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getAchievements, checkAchievements } from '../api/progress';
 import BadgeGallery from '../components/achievements/BadgeGallery';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { Trophy, RefreshCw, X } from 'lucide-react';
 
 const BADGE_DEFINITIONS = {
@@ -113,13 +113,13 @@ export default function Achievements() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading text-white flex items-center gap-2">
-          <Trophy className="text-neon-gold" size={22} /> Achievements
+        <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+          <Trophy className="text-brutal-yellow" size={22} /> Achievements
         </h1>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-neon-gold font-mono">{totalUnlocked}/{totalBadges}</span>
+          <span className="text-sm text-brutal-yellow font-mono">{totalUnlocked}/{totalBadges}</span>
           <button onClick={handleCheck} disabled={checking}
-            className="px-3 py-1.5 text-xs border border-neon-gold/30 text-neon-gold rounded-lg hover:bg-neon-gold/10 flex items-center gap-1 disabled:opacity-50">
+            className="px-3 py-1.5 text-xs border border-brutal-yellow/30 text-brutal-yellow rounded-lg hover:bg-brutal-yellow/10 flex items-center gap-1 disabled:opacity-50">
             <RefreshCw size={12} className={checking ? 'animate-spin' : ''} /> Check New
           </button>
         </div>
@@ -131,31 +131,31 @@ export default function Achievements() {
 
       {/* Badge Modal */}
       {selectedBadge && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setSelectedBadge(null)}>
-          <NeonCard color={selectedBadge.unlocked ? 'gold' : 'none'} className="max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setSelectedBadge(null)} className="absolute top-3 right-3 text-gray-500 hover:text-gray-300">
+        <div className="fixed inset-0 bg-overlay flex items-center justify-center z-50" onClick={() => setSelectedBadge(null)}>
+          <BrutalCard color={selectedBadge.unlocked ? 'gold' : 'none'} className="max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-3 right-3 text-text-muted hover:text-text-secondary">
               <X size={16} />
             </button>
             <div className="text-center py-4">
               <span className="text-4xl block mb-3">{selectedBadge.emoji}</span>
-              <h3 className="text-lg font-heading text-white mb-1">{selectedBadge.name}</h3>
-              <p className="text-sm text-gray-400 mb-3">{selectedBadge.description}</p>
+              <h3 className="text-lg font-heading text-text-primary mb-1">{selectedBadge.name}</h3>
+              <p className="text-sm text-text-secondary mb-3">{selectedBadge.description}</p>
               <span className={`text-xs px-2 py-1 rounded-full ${selectedBadge.unlocked
-                ? 'bg-neon-gold/20 text-neon-gold border border-neon-gold/30'
-                : 'bg-gray-700/20 text-gray-500 border border-gray-700'
+                ? 'bg-brutal-yellow/20 text-brutal-yellow border border-brutal-yellow/30'
+                : 'bg-bg-elevated text-text-muted border border-brutal-black/30'
                 }`}>
                 {selectedBadge.unlocked ? 'Unlocked' : 'Locked'}
               </span>
               {selectedBadge.unlocked && selectedBadge.unlockedAt && (
-                <p className="text-xs text-gray-600 mt-2">
+                <p className="text-xs text-text-muted mt-2">
                   Unlocked {new Date(selectedBadge.unlockedAt).toLocaleDateString()}
                 </p>
               )}
               {selectedBadge.xpBonus && (
-                <p className="text-xs text-neon-gold mt-2">+{selectedBadge.xpBonus} XP bonus</p>
+                <p className="text-xs text-brutal-yellow mt-2">+{selectedBadge.xpBonus} XP bonus</p>
               )}
             </div>
-          </NeonCard>
+          </BrutalCard>
         </div>
       )}
     </div>

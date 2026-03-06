@@ -18,6 +18,7 @@ app.use('/api/tutor', require('./routes/tutor'));
 app.use('/api/ml', require('./routes/ml'));
 app.use('/api/snippets', require('./routes/snippets'));
 app.use('/api/achievements', require('./routes/achievements'));
+app.use('/api/python', require('./routes/python'));
 
 // Health check
 app.get('/api/health', (req, res) => {

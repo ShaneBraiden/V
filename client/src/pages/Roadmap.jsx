@@ -6,7 +6,7 @@ import { getProgress, updateProgress } from '../api/progress';
 import { updateProfile } from '../api/auth';
 import LayerSection from '../components/roadmap/LayerSection';
 import TechCard from '../components/roadmap/TechCard';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { TECHNOLOGIES } from '../utils/typingGeminiPrompt';
 import { Map, Filter } from 'lucide-react';
 
@@ -45,15 +45,15 @@ export default function Roadmap() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading text-white flex items-center gap-2">
-          <Map className="text-neon-cyan" size={22} /> Technology Roadmap
+        <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+          <Map className="text-brutal-mint" size={22} /> Technology Roadmap
         </h1>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-neon-gold font-mono">{completedCount}/10</span>
-          <div className="flex gap-1 bg-bg-card rounded-lg p-1 border border-border-dim">
+          <span className="text-sm text-brutal-yellow font-mono">{completedCount}/10</span>
+          <div className="flex gap-1 bg-bg-card rounded-lg p-1 border-2 border-brutal-black">
             {['all', 'in-progress', 'complete', 'not-started'].map((f) => (
               <button key={f} onClick={() => setFilter(f)}
-                className={`px-2 py-1 rounded text-xs capitalize ${filter === f ? 'bg-neon-cyan/20 text-neon-cyan' : 'text-gray-500'}`}>
+                className={`px-2 py-1 rounded text-xs capitalize ${filter === f ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold' : 'text-text-muted'}`}>
                 {f}
               </button>
             ))}

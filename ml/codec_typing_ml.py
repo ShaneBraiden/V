@@ -1,9 +1,11 @@
 """
-V Typing ML Analysis Pipeline
-Three models trained on user's typing session data:
-  1. Weak Key Classifier (Random Forest)
-  2. WPM Growth Predictor (Polynomial Regression)
-  3. Typing Fingerprint (K-Means Clustering)
+CODEC Typing ML Analysis Pipeline
+===================================
+Models run on user's typing session data:
+  1. Weak Key Classifier     (Random Forest — trained per-session on aggregated key stats)
+  2. WPM Growth Predictor    (Polynomial Regression — predicts future WPM trajectory)
+  3. Typing Proficiency       (Gradient Boosting — pre-trained on keystroke dataset)
+  4. Speed Prediction         (Random Forest Regressor — pre-trained on keystroke dataset)
 
 Reads JSON session data from stdin, outputs analysis report JSON to stdout.
 """
@@ -18,7 +20,6 @@ try:
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.preprocessing import PolynomialFeatures
     from sklearn.linear_model import LinearRegression
-    from sklearn.cluster import KMeans
     from sklearn.preprocessing import StandardScaler
     HAS_SKLEARN = True
 except ImportError:
@@ -92,7 +93,6 @@ def model1_weak_key_classifier(sessions):
     X = np.array(features)
 
     if HAS_SKLEARN and len(keys) >= 5:
-        # Create labels based on percentiles
         latency_scores = X[:, 0]
         error_scores = X[:, 1]
         combined = latency_scores * 0.5 + error_scores * 100 * 0.5
@@ -112,7 +112,6 @@ def model1_weak_key_classifier(sessions):
         clf.fit(X, labels)
         predictions = clf.predict(X)
     else:
-        # Fallback: simple threshold-based classification
         latencies = X[:, 0]
         error_rates = X[:, 1]
         combined = latencies / np.max(latencies) * 0.5 + error_rates * 0.5
@@ -153,6 +152,8 @@ def model2_wpm_predictor(sessions):
     """
     Model 2: Polynomial Regression WPM Growth Predictor
     Predicts future WPM trajectory based on practice history.
+    Uses linear regression (degree 1) for more stable long-range predictions
+    than quadratic, which can explode or collapse.
     """
     if len(sessions) < 3:
         return {
@@ -160,6 +161,7 @@ def model2_wpm_predictor(sessions):
             'predictedWpm30': 0, 'predictedWpm60': 0, 'predictedWpm90': 0,
             'daysTo60Wpm': None,
             'trajectory': [],
+            'improvementRate': 0,
         }
 
     wpms = [s['wpm'] for s in sessions if s['wpm'] and s['wpm'] > 0]
@@ -169,13 +171,25 @@ def model2_wpm_predictor(sessions):
             'predictedWpm30': 0, 'predictedWpm60': 0, 'predictedWpm90': 0,
             'daysTo60Wpm': None,
             'trajectory': [],
+            'improvementRate': 0,
         }
 
     X_raw = np.arange(1, len(wpms) + 1).reshape(-1, 1)
     y = np.array(wpms)
 
+    # Calculate the actual improvement rate (WPM gained per session)
+    if len(wpms) >= 5:
+        # Use a windowed average for stability
+        early_avg = np.mean(wpms[:max(3, len(wpms) // 4)])
+        late_avg = np.mean(wpms[-max(3, len(wpms) // 4):])
+        improvement_rate = (late_avg - early_avg) / max(len(wpms), 1)
+    else:
+        improvement_rate = (wpms[-1] - wpms[0]) / max(len(wpms) - 1, 1)
+
     if HAS_SKLEARN:
-        poly = PolynomialFeatures(degree=2)
+        # Use degree 1 (linear) for stable predictions
+        # Degree 2 polynomial often produces wildly unrealistic long-range predictions
+        poly = PolynomialFeatures(degree=1)
         X_poly = poly.fit_transform(X_raw)
         reg = LinearRegression()
         reg.fit(X_poly, y)
@@ -188,29 +202,34 @@ def model2_wpm_predictor(sessions):
                 'predicted': round(float(reg.predict(poly.transform([[i]]))[0]), 1),
             })
 
-        pred_30 = max(0, float(reg.predict(poly.transform([[len(wpms) + 30]]))[0]))
-        pred_60 = max(0, float(reg.predict(poly.transform([[len(wpms) + 60]]))[0]))
-        pred_90 = max(0, float(reg.predict(poly.transform([[len(wpms) + 90]]))[0]))
-    else:
-        coeffs = np.polyfit(X_raw.flatten(), y, 2)
-        poly_fn = np.poly1d(coeffs)
-        trajectory = [{'session': i + 1, 'actual': round(float(wpms[i]), 1), 'predicted': round(float(poly_fn(i + 1)), 1)} for i in range(len(wpms))]
-        pred_30 = max(0, float(poly_fn(len(wpms) + 30)))
-        pred_60 = max(0, float(poly_fn(len(wpms) + 60)))
-        pred_90 = max(0, float(poly_fn(len(wpms) + 90)))
+        # Clamp predictions to reasonable bounds
+        current_wpm = float(wpms[-1])
+        max_predicted = min(current_wpm * 3, 200)  # no more than 3x current or 200
 
-    # Estimate days to 60 WPM
+        pred_30 = float(reg.predict(poly.transform([[len(wpms) + 30]]))[0])
+        pred_60 = float(reg.predict(poly.transform([[len(wpms) + 60]]))[0])
+        pred_90 = float(reg.predict(poly.transform([[len(wpms) + 90]]))[0])
+
+        pred_30 = max(0, min(pred_30, max_predicted))
+        pred_60 = max(0, min(pred_60, max_predicted))
+        pred_90 = max(0, min(pred_90, max_predicted))
+    else:
+        coeffs = np.polyfit(X_raw.flatten(), y, 1)
+        poly_fn = np.poly1d(coeffs)
+        trajectory = [{'session': i + 1, 'actual': round(float(wpms[i]), 1),
+                       'predicted': round(float(poly_fn(i + 1)), 1)} for i in range(len(wpms))]
+        current_wpm = float(wpms[-1])
+        max_predicted = min(current_wpm * 3, 200)
+        pred_30 = max(0, min(float(poly_fn(len(wpms) + 30)), max_predicted))
+        pred_60 = max(0, min(float(poly_fn(len(wpms) + 60)), max_predicted))
+        pred_90 = max(0, min(float(poly_fn(len(wpms) + 90)), max_predicted))
+
+    # Estimate sessions to 60 WPM
     days_to_60 = None
     current = wpms[-1]
-    if current < 60:
-        for future_session in range(1, 500):
-            if HAS_SKLEARN:
-                future_wpm = reg.predict(poly.transform([[len(wpms) + future_session]]))[0]
-            else:
-                future_wpm = poly_fn(len(wpms) + future_session)
-            if future_wpm >= 60:
-                days_to_60 = future_session
-                break
+    if current < 60 and improvement_rate > 0:
+        days_to_60 = int(np.ceil((60 - current) / improvement_rate))
+        days_to_60 = min(days_to_60, 999)  # cap at 999
 
     return {
         'currentWpm': round(float(wpms[-1]), 1),
@@ -220,114 +239,266 @@ def model2_wpm_predictor(sessions):
         'daysTo60Wpm': days_to_60,
         'trajectory': trajectory,
         'totalSessions': len(wpms),
+        'improvementRate': round(float(improvement_rate), 3),
     }
 
 
-def model3_typing_fingerprint(sessions):
-    """
-    Model 3: K-Means Typing Fingerprint Clustering
-    Profiles the user's typing pattern into one of 4 types.
-    """
-    profiles = ['Burst Typist', 'Steady Rhythm', 'Hesitant Typist', 'Fatiguing Typist']
+# ─────────────────────────────────────────────────────────────────────────────
+# PRE-TRAINED DATASET MODELS (trained on keystrokes_dataset)
+# ─────────────────────────────────────────────────────────────────────────────
+import os
 
-    # Collect inter-key latencies and bigrams
-    all_latencies = []
-    bigram_latencies = defaultdict(list)
+try:
+    import joblib
+    HAS_JOBLIB = True
+except ImportError:
+    HAS_JOBLIB = False
+
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
+
+
+def _load_metadata():
+    """Load model metadata (feature columns, metrics, etc.)."""
+    meta_path = os.path.join(MODEL_DIR, 'metadata.json')
+    if os.path.exists(meta_path):
+        with open(meta_path, 'r') as f:
+            return json.load(f)
+    return None
+
+
+def _extract_word_features_from_sessions(sessions):
+    """
+    Convert app session data (keypresses) into word-level features
+    matching the training dataset format.
+    """
+    all_words = []
 
     for session in sessions:
-        session_latencies = []
-        for kp in session['keypresses']:
-            ik = kp.get('interKeyMs', 0)
-            if 0 < ik < 5000:
-                session_latencies.append(ik)
-                prev = kp.get('prevKey', '')
-                if prev and len(prev) == 1:
-                    bigram = prev.lower() + kp.get('key', '').lower()
-                    bigram_latencies[bigram].append(ik)
-        all_latencies.extend(session_latencies)
+        keypresses = session.get('keypresses', [])
+        if len(keypresses) < 5:
+            continue
 
-    if len(all_latencies) < 20:
-        return {
-            'profile': 'Unknown',
-            'slowestBigrams': [],
-            'fatigueOnsetMinutes': None,
-            'avgLatencyMs': 0,
-        }
+        current_word = []
+        for kp in keypresses:
+            key = kp.get('key', '')
+            if key == ' ' or key == 'Space':
+                if current_word:
+                    all_words.append(current_word)
+                    current_word = []
+            else:
+                current_word.append(kp)
+        if current_word:
+            all_words.append(current_word)
 
-    latency_array = np.array(all_latencies)
-    avg_latency = float(np.mean(latency_array))
-    std_latency = float(np.std(latency_array))
-    cv = std_latency / avg_latency if avg_latency > 0 else 0
+    word_features = []
+    for word_kps in all_words:
+        if len(word_kps) < 1:
+            continue
 
-    # Detect burst patterns
-    short_ratio = np.sum(latency_array < avg_latency * 0.5) / len(latency_array)
-    long_ratio = np.sum(latency_array > avg_latency * 2) / len(latency_array)
+        word_text = ''.join(kp.get('key', '') for kp in word_kps).upper()
+        timestamps = [kp.get('timestampMs', 0) for kp in word_kps]
+        hold_times = [kp.get('holdMs', 0) for kp in word_kps]
+        inter_keys = [kp.get('interKeyMs', 0) for kp in word_kps]
 
-    # Detect fatigue (latency increase over session)
-    fatigue_onset = None
-    if len(all_latencies) > 50:
-        thirds = np.array_split(latency_array, 3)
-        means = [np.mean(t) for t in thirds]
-        if means[2] > means[0] * 1.2:
-            fatigue_onset = round(len(all_latencies) / 3 * avg_latency / 60000, 1)
-
-    # Classify based on features
-    if HAS_SKLEARN and len(all_latencies) >= 50:
-        # Create per-session features for clustering
-        session_features = []
-        for session in sessions:
-            lats = [kp.get('interKeyMs', 0) for kp in session['keypresses'] if 0 < kp.get('interKeyMs', 0) < 5000]
-            if len(lats) >= 5:
-                session_features.append([
-                    np.mean(lats),
-                    np.std(lats),
-                    np.std(lats) / np.mean(lats) if np.mean(lats) > 0 else 0,
-                    np.sum(np.array(lats) < np.mean(lats) * 0.5) / len(lats),
-                ])
-
-        if len(session_features) >= 4:
-            X = np.array(session_features)
-            scaler = StandardScaler()
-            X_scaled = scaler.fit_transform(X)
-            k = min(4, len(X_scaled))
-            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-            kmeans.fit(X_scaled)
-            cluster = int(kmeans.predict(X_scaled[-1:])[0])
-            profile = profiles[cluster % 4]
+        if len(timestamps) >= 2:
+            word_hold = timestamps[-1] - timestamps[0] + hold_times[-1] if hold_times[-1] > 0 else timestamps[-1] - timestamps[0]
         else:
-            profile = _classify_simple(cv, short_ratio, long_ratio)
+            word_hold = hold_times[0] if hold_times else 0
+
+        if word_hold <= 0:
+            word_hold = sum(max(ik, 0) for ik in inter_keys) + sum(max(h, 0) for h in hold_times)
+
+        flights = [ik for ik in inter_keys[1:] if ik > 0]
+        avg_flight1 = np.mean(flights) if flights else 0
+        avg_flight2 = np.median(flights) if flights else 0
+        avg_flight3 = np.mean(flights) if flights else 0
+        avg_flight4 = (avg_flight1 + avg_flight2) if flights else 0
+
+        avg_word = word_hold / len(word_kps) if len(word_kps) > 0 else 0
+
+        word_features.append({
+            'word': word_text,
+            'word_hold': max(word_hold, 0),
+            'avg_flight1': max(avg_flight1, 0),
+            'avg_flight2': max(avg_flight2, 0),
+            'avg_flight3': max(avg_flight3, 0),
+            'avg_flight4': max(avg_flight4, 0),
+            'avg_word': max(avg_word, 0),
+        })
+
+    return pd.DataFrame(word_features) if word_features else None
+
+
+def _extract_session_features(df):
+    """
+    Extract aggregated features from word-level data.
+    Must match the feature extraction from train_models.py exactly.
+    """
+    if df is None or len(df) < 5:
+        return None
+
+    df = df.copy()
+    df['word_length'] = df['word'].apply(lambda w: len(str(w)) if pd.notna(w) else 0)
+    df = df[df['word_length'] > 0]
+
+    if len(df) < 5:
+        return None
+
+    features = {}
+    numeric_cols = ['word_hold', 'avg_flight1', 'avg_flight2',
+                    'avg_flight3', 'avg_flight4', 'avg_word', 'word_length']
+
+    for col in numeric_cols:
+        vals = df[col].values.astype(float)
+        vals = vals[vals > 0] if col != 'word_length' else vals
+        if len(vals) == 0:
+            vals = np.array([0.0])
+
+        features[f'{col}_mean'] = float(np.mean(vals))
+        features[f'{col}_std'] = float(np.std(vals))
+        features[f'{col}_median'] = float(np.median(vals))
+        features[f'{col}_p25'] = float(np.percentile(vals, 25))
+        features[f'{col}_p75'] = float(np.percentile(vals, 75))
+        features[f'{col}_iqr'] = features[f'{col}_p75'] - features[f'{col}_p25']
+        features[f'{col}_max'] = float(np.max(vals))
+        features[f'{col}_min'] = float(np.min(vals))
+        features[f'{col}_cv'] = float(np.std(vals) / np.mean(vals)) if np.mean(vals) > 0 else 0.0
+
+    features['total_words'] = len(df)
+    features['avg_hold_per_char'] = features['word_hold_mean'] / max(features['word_length_mean'], 1)
+    features['flight_consistency'] = features['avg_flight1_std'] / max(features['avg_flight1_mean'], 1)
+    features['speed_ratio'] = features['avg_word_mean'] / max(features['word_hold_mean'], 1)
+    features['hold_flight_ratio'] = features['word_hold_mean'] / max(features['avg_flight1_mean'], 1)
+
+    holds = df['word_hold'].values.astype(float)
+    if len(holds) > 2:
+        std_val = float(np.std(holds))
+        features['hold_autocorr'] = float(np.corrcoef(holds[:-1], holds[1:])[0, 1]) if std_val > 0 else 0.0
+        features['hold_trend'] = float(np.polyfit(range(len(holds)), holds, 1)[0])
     else:
-        profile = _classify_simple(cv, short_ratio, long_ratio)
+        features['hold_autocorr'] = 0.0
+        features['hold_trend'] = 0.0
 
-    # Top 20 slowest bigrams
-    bigram_avgs = {bg: np.mean(lats) for bg, lats in bigram_latencies.items() if len(lats) >= 3}
-    slowest = sorted(bigram_avgs.items(), key=lambda x: x[1], reverse=True)[:20]
-    slowest_bigrams = [{'bigram': bg, 'avgMs': round(float(ms), 1)} for bg, ms in slowest]
+    per_char_speeds = df['word_hold'].values.astype(float) / np.maximum(df['word_length'].values.astype(float), 1)
+    mean_speed = float(np.mean(per_char_speeds))
+    features['chars_per_sec'] = 1000.0 / mean_speed if mean_speed > 0 else 0.0
+    features['estimated_wpm'] = features['chars_per_sec'] * 60 / 5
 
-    return {
-        'profile': profile,
-        'slowestBigrams': slowest_bigrams,
-        'fatigueOnsetMinutes': fatigue_onset,
-        'avgLatencyMs': round(avg_latency, 1),
-        'stdLatencyMs': round(std_latency, 1),
-        'coefficientOfVariation': round(cv, 3),
+    for k, v in features.items():
+        if not np.isfinite(v):
+            features[k] = 0.0
+
+    return features
+
+
+def model_pretrained_analysis(sessions):
+    """
+    Run 2 pre-trained models (from keystrokes_dataset) on user session data.
+
+    Returns analysis report with:
+      - proficiency: Beginner/Intermediate/Expert classification
+      - speedPrediction: predicted WPM from keystroke features
+    """
+    if not HAS_JOBLIB or not HAS_SKLEARN:
+        return {'error': 'Required packages not installed (joblib, sklearn)'}
+
+    metadata = _load_metadata()
+    if metadata is None:
+        return {'error': 'Pre-trained models not found. Run train_models.py first.'}
+
+    word_df = _extract_word_features_from_sessions(sessions)
+    if word_df is None or len(word_df) < 5:
+        return {'error': 'Not enough typing data. Type at least 5 words.'}
+
+    session_feats = _extract_session_features(word_df)
+    if session_feats is None:
+        return {'error': 'Failed to extract features from session data.'}
+
+    feature_cols = metadata['feature_columns']
+    speed_feature_cols = metadata['speed_feature_columns']
+
+    X_full = np.array([[session_feats.get(c, 0.0) for c in feature_cols]])
+    X_speed = np.array([[session_feats.get(c, 0.0) for c in speed_feature_cols]])
+
+    result = {}
+
+    # ── Model 1: Typing Proficiency ──
+    try:
+        clf = joblib.load(os.path.join(MODEL_DIR, 'proficiency_gb.joblib'))
+        scaler = joblib.load(os.path.join(MODEL_DIR, 'proficiency_scaler.joblib'))
+        X_scaled = scaler.transform(X_full)
+        proba = clf.predict_proba(X_scaled)[0]
+        pred_class = int(clf.predict(X_scaled)[0])
+        labels = metadata.get('proficiency_labels', ['Beginner', 'Intermediate', 'Expert'])
+
+        # Override level AND bar scores with WPM-based thresholds.
+        # <30 WPM = Beginner, 30-60 = Intermediate, 60+ = Expert.
+        # Bar scores show progress within the current tier; other tiers = 0.
+        est_wpm = session_feats.get('estimated_wpm', 0)
+        if est_wpm >= 60:
+            wpm_level = 'Expert'
+            wpm_scores = {
+                'Beginner': 0.0,
+                'Intermediate': 0.0,
+                'Expert': round(min(100.0, (est_wpm - 60) / 60 * 100), 1),
+            }
+        elif est_wpm >= 30:
+            wpm_level = 'Intermediate'
+            wpm_scores = {
+                'Beginner': 0.0,
+                'Intermediate': round((est_wpm - 30) / 30 * 100, 1),
+                'Expert': 0.0,
+            }
+        else:
+            wpm_level = 'Beginner'
+            wpm_scores = {
+                'Beginner': round(max(0.0, est_wpm / 30 * 100), 1),
+                'Intermediate': 0.0,
+                'Expert': 0.0,
+            }
+
+        result['proficiency'] = {
+            'level': wpm_level,
+            'confidence': round(wpm_scores[wpm_level], 1),
+            'scores': wpm_scores,
+            'modelAccuracy': metadata['models']['proficiency']['metrics']['cv_mean'],
+        }
+    except Exception as e:
+        result['proficiency'] = {'error': str(e)}
+
+    # ── Model 2: Speed Prediction ──
+    try:
+        rfr = joblib.load(os.path.join(MODEL_DIR, 'speed_rfr.joblib'))
+        scaler = joblib.load(os.path.join(MODEL_DIR, 'speed_scaler.joblib'))
+        X_scaled = scaler.transform(X_speed)
+        predicted_wpm = float(rfr.predict(X_scaled)[0])
+        actual_wpm = session_feats.get('estimated_wpm', 0)
+
+        result['speedPrediction'] = {
+            'predictedWpm': round(max(0, predicted_wpm), 1),
+            'actualEstimatedWpm': round(actual_wpm, 1),
+            'difference': round(abs(predicted_wpm - actual_wpm), 1),
+            'wpmRange': metadata['models']['speed_prediction']['metrics']['wpm_range'],
+            'modelMAE': metadata['models']['speed_prediction']['metrics']['test_mae'],
+        }
+    except Exception as e:
+        result['speedPrediction'] = {'error': str(e)}
+
+    # Summary insights
+    result['featureSummary'] = {
+        'wordsAnalyzed': int(session_feats.get('total_words', 0)),
+        'avgWordHoldMs': round(session_feats.get('word_hold_mean', 0), 1),
+        'avgFlightMs': round(session_feats.get('avg_flight1_mean', 0), 1),
+        'estimatedWpm': round(session_feats.get('estimated_wpm', 0), 1),
+        'holdConsistency': round(1 - min(session_feats.get('word_hold_cv', 1), 1), 2),
+        'rhythmScore': round(max(0, 1 - session_feats.get('flight_consistency', 1)) * 100, 1),
     }
 
-
-def _classify_simple(cv, short_ratio, long_ratio):
-    """Simple rule-based typing profile classification."""
-    if cv > 0.8 and short_ratio > 0.3:
-        return 'Burst Typist'
-    elif cv < 0.4:
-        return 'Steady Rhythm'
-    elif long_ratio > 0.2:
-        return 'Hesitant Typist'
-    else:
-        return 'Fatiguing Typist'
+    return result
 
 
 def main():
-    """Read session data from stdin, run 3 models, output JSON to stdout."""
+    """Read session data from stdin, run all models, output JSON to stdout."""
     try:
         raw_input = sys.stdin.read()
         raw_sessions = json.loads(raw_input)
@@ -344,7 +515,7 @@ def main():
     report = {
         'keyAnalysis': model1_weak_key_classifier(sessions),
         'wpmPrediction': model2_wpm_predictor(sessions),
-        'typingFingerprint': model3_typing_fingerprint(sessions),
+        'datasetAnalysis': model_pretrained_analysis(sessions),
         'sessionCount': len(sessions),
         'currentWpm': sessions[0]['wpm'] if sessions else 0,
     }

@@ -54,7 +54,7 @@ sys.stderr = StringIO()
       const stderr = pyodide.runPython('sys.stderr.getvalue()');
       return { output: stdout, error: stderr || null };
     } catch (err) {
-      return { output: '', error: err.message };
+      return { output: '', error: err.message || (typeof err === 'string' ? err : String(err)) };
     }
   }, [loadPyodide]);
 

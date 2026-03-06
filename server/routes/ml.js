@@ -53,7 +53,7 @@ router.get('/report', auth, async (req, res) => {
     const analysis = await MlAnalysis.findOne({ userId: req.user.userId })
       .sort({ createdAt: -1 });
     if (!analysis) {
-      return res.status(404).json({ message: 'No analysis found. Run analysis first.' });
+      return res.json(null);
     }
     res.json(analysis);
   } catch (error) {

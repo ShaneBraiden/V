@@ -33,7 +33,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="h-14 bg-bg-card border-b border-border-dim flex items-center justify-between px-4 sticky top-0 z-40">
+    <header className="h-14 bg-bg-card border-b-2 border-brutal-black flex items-center justify-between px-4 sticky top-0 z-40">
       {/* Study timer */}
       <Timer
         seconds={elapsed}
@@ -57,24 +57,24 @@ export default function TopBar() {
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-bg-elevated transition-colors"
           >
-            <div className="w-7 h-7 rounded-full bg-neon-purple/20 flex items-center justify-center">
-              <User size={14} className="text-neon-purple" />
+            <div className="w-7 h-7 rounded-full bg-brutal-lavender flex items-center justify-center">
+              <User size={14} className="text-text-primary" />
             </div>
-            {user && <span className="text-sm text-gray-300 hidden sm:inline">{user.name}</span>}
-            <ChevronDown size={14} className="text-gray-500" />
+            {user && <span className="text-sm text-text-primary hidden sm:inline">{user.name}</span>}
+            <ChevronDown size={14} className="text-text-muted" />
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-44 bg-bg-elevated border border-border-dim rounded-lg shadow-xl py-1 z-50">
+            <div className="absolute right-0 top-full mt-1 w-44 bg-bg-card border-2 border-brutal-black rounded-lg shadow-brutal-md py-1 z-50">
               <button
                 onClick={() => { navigate('/settings'); setMenuOpen(false); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-bg-card transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-elevated transition-colors"
               >
                 <User size={14} /> Settings
               </button>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-bg-card transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-text hover:bg-bg-elevated transition-colors"
               >
                 <LogOut size={14} /> Logout
               </button>

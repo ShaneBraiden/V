@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getSchedule, createWeek, updateWeek, deleteWeek } from '../api/learning';
 import { addXP } from '../api/progress';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { TECHNOLOGIES } from '../utils/typingGeminiPrompt';
 import { Calendar, Plus, Check, Trash2, Edit2 } from 'lucide-react';
 
@@ -57,59 +57,59 @@ export default function Schedule() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading text-white flex items-center gap-2">
-          <Calendar className="text-neon-cyan" size={22} /> Learning Schedule
+        <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+          <Calendar className="text-brutal-mint" size={22} /> Learning Schedule
         </h1>
         <button onClick={() => setShowAdd(!showAdd)}
-          className="px-3 py-1.5 bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30 rounded-lg text-sm flex items-center gap-1">
+          className="px-3 py-1.5 bg-brutal-mint/20 text-brutal-mint border-2 border-brutal-black rounded-lg text-sm flex items-center gap-1">
           <Plus size={14} /> Add Week
         </button>
       </div>
 
-      <div className="flex gap-1 bg-bg-card rounded-lg p-1 border border-border-dim w-fit">
+      <div className="flex gap-1 bg-bg-card rounded-lg p-1 border-2 border-brutal-black w-fit">
         {['all', 'remaining', 'completed'].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1 rounded text-xs capitalize ${filter === f ? 'bg-neon-cyan/20 text-neon-cyan' : 'text-gray-500'}`}>{f}</button>
+            className={`px-3 py-1 rounded text-xs capitalize ${filter === f ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold' : 'text-text-muted'}`}>{f}</button>
         ))}
       </div>
 
       {showAdd && (
-        <NeonCard className="space-y-3">
+        <BrutalCard className="space-y-3">
           <select value={newWeek.techId} onChange={(e) => setNewWeek({...newWeek, techId: e.target.value})}
-            className="w-full bg-bg-elevated border border-border-dim rounded-lg px-3 py-2 text-sm text-white">
+            className="w-full bg-bg-card border-2 border-brutal-black rounded-lg px-3 py-2 text-sm text-text-primary">
             {TECHNOLOGIES.map(t => <option key={t.id} value={t.id}>{t.emoji} {t.name}</option>)}
           </select>
           <input value={newWeek.topic} onChange={(e) => setNewWeek({...newWeek, topic: e.target.value})} placeholder="Topic"
-            className="w-full bg-bg-elevated border border-border-dim rounded-lg px-3 py-2 text-sm text-white focus:border-neon-cyan focus:outline-none" />
+            className="w-full bg-bg-card border-2 border-brutal-black rounded-lg px-3 py-2 text-sm text-text-primary focus:border-brutal-purple focus:outline-none" />
           <input value={newWeek.task} onChange={(e) => setNewWeek({...newWeek, task: e.target.value})} placeholder="Task description"
-            className="w-full bg-bg-elevated border border-border-dim rounded-lg px-3 py-2 text-sm text-white focus:border-neon-cyan focus:outline-none" />
-          <button onClick={handleAdd} className="px-4 py-2 bg-neon-cyan text-bg-primary rounded-lg text-sm font-semibold">Create Week</button>
-        </NeonCard>
+            className="w-full bg-bg-card border-2 border-brutal-black rounded-lg px-3 py-2 text-sm text-text-primary focus:border-brutal-purple focus:outline-none" />
+          <button onClick={handleAdd} className="px-4 py-2 bg-brutal-purple text-white rounded-lg text-sm font-semibold border-2 border-brutal-black shadow-brutal-sm">Create Week</button>
+        </BrutalCard>
       )}
 
       <div className="space-y-3">
         {filtered.map((week) => {
           const tech = TECHNOLOGIES.find(t => t.id === week.techId);
           return (
-            <NeonCard key={week._id} color={week.completed ? 'none' : 'cyan'}>
+            <BrutalCard key={week._id} color={week.completed ? 'none' : 'cyan'}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button onClick={() => handleComplete(week)}
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${week.completed ? 'border-green-500 bg-green-500/20' : 'border-gray-600'}`}>
-                    {week.completed && <Check size={12} className="text-green-400" />}
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${week.completed ? 'border-success bg-success-soft' : 'border-brutal-black'}`}>
+                    {week.completed && <Check size={12} className="text-success-text" />}
                   </button>
                   <div>
-                    <h4 className={`text-sm font-semibold ${week.completed ? 'text-green-400 line-through' : 'text-white'}`}>
+                    <h4 className={`text-sm font-semibold ${week.completed ? 'text-success-text line-through' : 'text-text-primary'}`}>
                       Week {week.weekNumber} — {tech?.emoji} {week.topic}
                     </h4>
-                    <p className="text-xs text-gray-500">{week.task} ({week.targetHours}h target)</p>
+                    <p className="text-xs text-text-muted">{week.task} ({week.targetHours}h target)</p>
                   </div>
                 </div>
-                <button onClick={() => handleDelete(week._id)} className="text-gray-600 hover:text-red-400">
+                <button onClick={() => handleDelete(week._id)} className="text-text-muted hover:text-error-text">
                   <Trash2 size={14} />
                 </button>
               </div>
-            </NeonCard>
+            </BrutalCard>
           );
         })}
       </div>

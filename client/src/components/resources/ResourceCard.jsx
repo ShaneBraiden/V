@@ -15,11 +15,11 @@ function toYouTubeEmbed(url) {
 }
 
 const TYPE_BADGES = {
-  video: 'bg-red-500/20   text-red-400   border-red-500/30',
-  book: 'bg-blue-500/20  text-blue-400  border-blue-500/30',
-  course: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  article: 'bg-green-500/20 text-green-400 border-green-500/30',
-  docs: 'bg-neon-cyan/10 text-neon-cyan  border-neon-cyan/30',
+  video: 'bg-type-video-bg   text-type-video   border-type-video',
+  book: 'bg-type-book-bg  text-type-book  border-type-book',
+  course: 'bg-type-course-bg text-type-course border-type-course',
+  article: 'bg-type-article-bg text-type-article border-type-article',
+  docs: 'bg-brutal-mint/10 text-brutal-mint  border-brutal-mint/30',
 };
 
 const TYPE_ICONS = { video: Play, book: BookOpen, course: FileText, docs: FileText, article: FileText };
@@ -37,12 +37,12 @@ export default function ResourceCard({ resource, onToggleComplete }) {
 
   return (
     <>
-      <div className={`neon-card p-4 ${resource.completed ? 'border-neon-cyan/40' : ''}`}>
+      <div className={`brutal-card p-4 ${resource.completed ? 'border-brutal-mint/40' : ''}`}>
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-gray-200 flex-1 pr-2 leading-snug">{resource.title}</h3>
+          <h3 className="font-semibold text-text-primary flex-1 pr-2 leading-snug">{resource.title}</h3>
           <button
             onClick={() => onToggleComplete?.(resource)}
-            className={`shrink-0 p-1 rounded ${resource.completed ? 'text-neon-cyan' : 'text-gray-600 hover:text-gray-400'}`}
+            className={`shrink-0 p-1 rounded ${resource.completed ? 'text-brutal-mint' : 'text-text-muted hover:text-text-muted'}`}
             title={resource.completed ? 'Mark incomplete' : 'Mark complete'}
           >
             <Check size={16} />
@@ -55,14 +55,14 @@ export default function ResourceCard({ resource, onToggleComplete }) {
             {resource.type}
           </span>
           {resource.techId && (
-            <span className="text-xs px-2 py-0.5 rounded border border-border-dim text-gray-400">
+            <span className="text-xs px-2 py-0.5 rounded border border-brutal-black text-text-muted">
               {resource.techId}
             </span>
           )}
         </div>
 
         {resource.description && (
-          <p className="text-xs text-gray-500 mb-3">{resource.description}</p>
+          <p className="text-xs text-text-muted mb-3">{resource.description}</p>
         )}
 
         {/* Action buttons */}
@@ -70,14 +70,14 @@ export default function ResourceCard({ resource, onToggleComplete }) {
           {isYouTube ? (
             <button
               onClick={() => setViewerOpen(true)}
-              className="btn-neon-purple text-xs px-3 py-1.5 flex items-center gap-1.5"
+              className="btn-brutal-purple text-xs px-3 py-1.5 flex items-center gap-1.5"
             >
               <Youtube size={12} /> Watch
             </button>
           ) : canEmbed ? (
             <button
               onClick={() => setViewerOpen(true)}
-              className="btn-neon text-xs px-3 py-1.5 flex items-center gap-1.5"
+              className="btn-brutal text-xs px-3 py-1.5 flex items-center gap-1.5"
             >
               <TypeIcon size={12} /> Open in App
             </button>
@@ -87,7 +87,7 @@ export default function ResourceCard({ resource, onToggleComplete }) {
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-neon text-xs px-3 py-1.5 flex items-center gap-1.5"
+              className="btn-brutal text-xs px-3 py-1.5 flex items-center gap-1.5"
             >
               <ExternalLink size={12} /> Visit Resource
             </a>
@@ -99,25 +99,25 @@ export default function ResourceCard({ resource, onToggleComplete }) {
       {viewerOpen && (
         <div className="fixed inset-0 z-50 flex flex-col bg-bg-primary/95 backdrop-blur-sm">
           {/* Modal header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border-dim bg-bg-card shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-brutal-black bg-bg-card shrink-0">
             <div className="flex items-center gap-3 min-w-0">
               <span className={`text-xs px-2 py-0.5 rounded border ${TYPE_BADGES[resource.type] || TYPE_BADGES.docs}`}>
                 {resource.type}
               </span>
-              <h2 className="text-sm font-semibold text-white truncate">{resource.title}</h2>
+              <h2 className="text-sm font-semibold text-text-primary truncate">{resource.title}</h2>
             </div>
             <div className="flex items-center gap-2 shrink-0 ml-3">
               <a
                 href={resource.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-gray-500 hover:text-neon-cyan flex items-center gap-1 transition-colors"
+                className="text-xs text-text-muted hover:text-brutal-mint flex items-center gap-1 transition-colors"
               >
                 <ExternalLink size={12} /> Open tab
               </a>
               <button
                 onClick={() => setViewerOpen(false)}
-                className="p-1.5 rounded-lg border border-border-dim text-gray-400 hover:text-neon-cyan hover:border-neon-cyan/40 transition-colors"
+                className="p-1.5 rounded-lg border border-brutal-black text-text-muted hover:text-brutal-mint hover:border-brutal-mint/40 transition-colors"
               >
                 <X size={16} />
               </button>

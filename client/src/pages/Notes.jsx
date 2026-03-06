@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import useNotesStore from '../store/useNotesStore';
 import useAppStore from '../store/useAppStore';
 import { getNotes, updateNotes } from '../api/learning';
-import NeonCard from '../components/ui/NeonCard';
+import BrutalCard from '../components/ui/BrutalCard';
 import { TECHNOLOGIES } from '../utils/typingGeminiPrompt';
 import { FileText, Save, Download, Hash } from 'lucide-react';
 
@@ -75,15 +75,15 @@ export default function Notes() {
     <div className="flex gap-4 h-[calc(100vh-8rem)]">
       {/* Tech Sidebar */}
       <div className="w-48 flex-shrink-0 space-y-1">
-        <h3 className="text-xs text-gray-500 uppercase mb-2">Technologies</h3>
+        <h3 className="text-xs text-text-muted uppercase mb-2">Technologies</h3>
         {TECHNOLOGIES.map((tech) => (
           <button
             key={tech.id}
             onClick={() => { setCurrentTech(tech.id); }}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
               currentTechId === tech.id
-                ? 'bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-bg-card'
+                ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold'
+                : 'text-text-muted hover:text-text-secondary hover:bg-bg-card'
             }`}
           >
             {tech.emoji} {tech.name}
@@ -94,27 +94,27 @@ export default function Notes() {
       {/* Editor */}
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl font-heading text-white flex items-center gap-2">
-            <FileText className="text-neon-cyan" size={22} /> Notes
-            <span className="text-sm text-gray-500 font-normal">
+          <h1 className="text-xl font-heading text-text-primary flex items-center gap-2">
+            <FileText className="text-brutal-mint" size={22} /> Notes
+            <span className="text-sm text-text-muted font-normal">
               — {TECHNOLOGIES.find(t => t.id === currentTechId)?.emoji} {TECHNOLOGIES.find(t => t.id === currentTechId)?.name}
             </span>
           </h1>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-600 flex items-center gap-1">
+            <span className="text-xs text-text-muted flex items-center gap-1">
               <Hash size={12} /> {wordCount} words
             </span>
             {lastSaved && (
-              <span className="text-xs text-gray-600">
+              <span className="text-xs text-text-muted">
                 {saving ? 'Saving...' : 'Saved'}
               </span>
             )}
             <button onClick={() => saveNote(content)}
-              className="px-3 py-1.5 text-xs border border-border-dim rounded-lg text-gray-400 hover:border-neon-cyan hover:text-neon-cyan flex items-center gap-1">
+              className="px-3 py-1.5 text-xs border-2 border-brutal-black rounded-lg text-text-secondary hover:border-brutal-mint hover:text-brutal-mint flex items-center gap-1">
               <Save size={12} /> Save
             </button>
             <button onClick={handleExport}
-              className="px-3 py-1.5 text-xs border border-border-dim rounded-lg text-gray-400 hover:border-neon-gold hover:text-neon-gold flex items-center gap-1">
+              className="px-3 py-1.5 text-xs border-2 border-brutal-black rounded-lg text-text-secondary hover:border-brutal-yellow hover:text-brutal-yellow flex items-center gap-1">
               <Download size={12} /> Export
             </button>
           </div>
@@ -123,7 +123,7 @@ export default function Notes() {
           value={content}
           onChange={handleChange}
           placeholder={`Start writing notes for ${TECHNOLOGIES.find(t => t.id === currentTechId)?.name || 'this technology'}...\n\nSupports markdown formatting.`}
-          className="flex-1 w-full bg-bg-card border border-border-dim rounded-xl p-4 text-sm text-gray-300 font-mono leading-relaxed resize-none focus:outline-none focus:border-neon-cyan/30"
+          className="flex-1 w-full bg-bg-card border-2 border-brutal-black rounded-lg p-4 text-sm text-text-primary font-mono leading-relaxed resize-none focus:outline-none focus:border-brutal-purple"
           spellCheck={false}
         />
       </div>

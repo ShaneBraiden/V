@@ -64,3 +64,19 @@ export const updateFlashcardProgress = async (cardId, data) => {
   });
   return handleResponse(res);
 };
+
+/** Fetch the freshest user object (after XP / streak updates) */
+export const refreshUser = async () => {
+  const res = await fetch('/api/auth/me', { headers: getHeaders() });
+  return handleResponse(res);
+};
+
+/** Ask Gemini to review the student's Python challenge solution */
+export const reviewPythonChallenge = async ({ code, challengeTitle, instructions }) => {
+  const res = await fetch('/api/python/review', {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ code, challengeTitle, instructions }),
+  });
+  return handleResponse(res);
+};

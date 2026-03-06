@@ -11,7 +11,8 @@ import DrillCard from '../components/typing/DrillCard';
 import KeyboardHeatmap from '../components/typing/KeyboardHeatmap';
 import WPMProjectionChart from '../components/typing/WPMProjectionChart';
 import FingerDiagram from '../components/typing/FingerDiagram';
-import NeonCard from '../components/ui/NeonCard';
+import MlAnalysisPanel from '../components/typing/MlAnalysisPanel';
+import BrutalCard from '../components/ui/BrutalCard';
 import { TYPING_LEVELS } from '../utils/typingGeminiPrompt';
 import { getTodayString } from '../utils/dateUtils';
 import { Keyboard, BookOpen, BarChart3, Brain, Hand, ChevronDown, ChevronRight, Play, Lock } from 'lucide-react';
@@ -28,7 +29,7 @@ const MODES = ['words', 'code', 'sentences'];
 const DURATIONS = [60, 180, 300, 600];
 
 const PRACTICE_TEXTS = {
-  words: 'the quick brown fox jumps over the lazy dog a fast typist can handle any challenge with grace and precision keep your fingers on the home row and type with purpose every keystroke matters when you are building speed',
+  words: 'rain lane liar lean earn rein line nail alien liner arena inner aerial renal liner alien lane rain nail earn lean rein liar line arena inner aerial renal liner alien lane rain nail earn lean rein liar line arena inner',
   code: 'function fibonacci(n) { if (n <= 1) return n; return fibonacci(n - 1) + fibonacci(n - 2); } const result = fibonacci(10); console.log("Result:", result);',
   sentences: 'Practice makes perfect. Every expert was once a beginner. The journey of a thousand miles begins with a single step. Code is poetry written for machines to execute.',
 };
@@ -58,14 +59,14 @@ export default function Typing() {
   };
 
   const LEVEL_COLORS = [
-    'border-neon-cyan/30   text-neon-cyan',
-    'border-neon-cyan/30   text-neon-cyan',
-    'border-neon-blue/30   text-neon-blue',
-    'border-neon-blue/30   text-neon-blue',
-    'border-neon-gold/30   text-neon-gold',
-    'border-neon-gold/30   text-neon-gold',
-    'border-neon-purple/30 text-neon-purple',
-    'border-neon-purple/30 text-neon-purple',
+    'border-2 border-brutal-black text-brutal-mint',
+    'border-2 border-brutal-black text-brutal-mint',
+    'border-2 border-brutal-black text-brutal-blue',
+    'border-2 border-brutal-black text-brutal-blue',
+    'border-2 border-brutal-black text-brutal-yellow',
+    'border-2 border-brutal-black text-brutal-yellow',
+    'border-2 border-brutal-black text-brutal-purple',
+    'border-2 border-brutal-black text-brutal-purple',
   ];
 
   useEffect(() => {
@@ -103,14 +104,14 @@ export default function Typing() {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-1 bg-bg-card rounded-xl p-1 border border-border-dim">
+      <div className="flex gap-1 bg-bg-card rounded-lg p-1 border-2 border-brutal-black">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setTab(id)}
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${tab === id
-              ? 'bg-bg-elevated text-neon-cyan border border-neon-cyan/20'
-              : 'text-gray-500 hover:text-gray-300'
+              ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold'
+              : 'text-text-muted hover:text-text-secondary'
               }`}
           >
             <Icon size={16} />
@@ -124,18 +125,18 @@ export default function Typing() {
         <div className="space-y-4">
           <div className="flex gap-3 flex-wrap">
             {/* Mode selector */}
-            <div className="flex gap-1 bg-bg-card rounded-lg p-1 border border-border-dim">
+            <div className="flex gap-1 bg-bg-card rounded-lg p-1 border-2 border-brutal-black">
               {MODES.map((m) => (
                 <button key={m} onClick={() => setMode(m)}
-                  className={`px-3 py-1.5 rounded text-xs capitalize ${mode === m ? 'bg-neon-cyan/20 text-neon-cyan' : 'text-gray-500'}`}
+                  className={`px-3 py-1.5 rounded text-xs capitalize ${mode === m ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold' : 'text-text-muted'}`}
                 >{m}</button>
               ))}
             </div>
             {/* Duration selector */}
-            <div className="flex gap-1 bg-bg-card rounded-lg p-1 border border-border-dim">
+            <div className="flex gap-1 bg-bg-card rounded-lg p-1 border-2 border-brutal-black">
               {DURATIONS.map((d) => (
                 <button key={d} onClick={() => setDuration(d)}
-                  className={`px-3 py-1.5 rounded text-xs ${duration === d ? 'bg-neon-cyan/20 text-neon-cyan' : 'text-gray-500'}`}
+                  className={`px-3 py-1.5 rounded text-xs ${duration === d ? 'bg-brutal-yellow text-text-primary border-2 border-brutal-black font-semibold' : 'text-text-muted'}`}
                 >{d / 60}m</button>
               ))}
             </div>
@@ -166,49 +167,49 @@ export default function Typing() {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-heading text-white">8-Level Typing Curriculum</h2>
-              <span className="text-xs text-gray-500">{TYPING_LEVELS.reduce((a, l) => a + l.lessons.length, 0)} lessons total</span>
+              <h2 className="text-lg font-heading text-text-primary">8-Level Typing Curriculum</h2>
+              <span className="text-xs text-text-muted">{TYPING_LEVELS.reduce((a, l) => a + l.lessons.length, 0)} lessons total</span>
             </div>
             {TYPING_LEVELS.map((level, levelIdx) => {
               const colorClass = LEVEL_COLORS[levelIdx] || LEVEL_COLORS[0];
               const isExpanded = expandedLevel === levelIdx;
               return (
-                <div key={level.id} className="rounded-xl border border-border-dim overflow-hidden">
+                <div key={level.id} className="rounded-lg border-2 border-brutal-black overflow-hidden">
                   {/* Level header */}
                   <button
                     onClick={() => setExpandedLevel(isExpanded ? null : levelIdx)}
                     className="w-full flex items-center gap-3 px-4 py-3 bg-bg-card hover:bg-bg-elevated transition-colors text-left"
                   >
-                    <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${colorClass}`}>
+                    <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${colorClass}`}>
                       {level.id}
                     </span>
                     <div className="flex-1">
-                      <span className="text-sm font-semibold text-gray-200">{level.name}</span>
-                      <span className="text-xs text-gray-500 ml-2">· {level.wpmTarget} WPM · {level.lessons.length} lessons</span>
+                      <span className="text-sm font-semibold text-text-primary">{level.name}</span>
+                      <span className="text-xs text-text-muted ml-2">· {level.wpmTarget} WPM · {level.lessons.length} lessons</span>
                     </div>
-                    <span className="font-mono text-xs text-gray-600 tracking-widest hidden sm:block">{level.keys}</span>
+                    <span className="font-mono text-xs text-text-muted tracking-widest hidden sm:block">{level.keys}</span>
                     {isExpanded
-                      ? <ChevronDown size={16} className="text-gray-500 shrink-0" />
-                      : <ChevronRight size={16} className="text-gray-500 shrink-0" />
+                      ? <ChevronDown size={16} className="text-text-muted shrink-0" />
+                      : <ChevronRight size={16} className="text-text-muted shrink-0" />
                     }
                   </button>
                   {/* Sub-lessons */}
                   {isExpanded && (
-                    <div className="divide-y divide-border-dim/50 border-t border-border-dim">
+                    <div className="divide-y divide-brutal-black/50 border-t border-brutal-black">
                       {level.lessons.map((lesson, lessonIdx) => (
                         <button
                           key={lesson.id}
                           onClick={() => setActiveLesson({ level, lessonIndex: lessonIdx })}
                           className="w-full flex items-center gap-3 px-5 py-3 bg-bg-primary hover:bg-bg-elevated transition-colors text-left group"
                         >
-                          <div className="w-6 h-6 rounded-full border border-border-dim bg-bg-elevated flex items-center justify-center shrink-0 group-hover:border-neon-cyan/50 transition-colors">
-                            <Play size={10} className="text-gray-500 group-hover:text-neon-cyan transition-colors" />
+                          <div className="w-6 h-6 rounded-full border-2 border-brutal-black bg-bg-elevated flex items-center justify-center shrink-0 group-hover:border-brutal-mint transition-colors">
+                            <Play size={10} className="text-text-muted group-hover:text-brutal-mint transition-colors" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-gray-300 group-hover:text-white transition-colors">{lesson.title}</p>
-                            <p className="text-xs text-gray-600 truncate mt-0.5 font-mono">{lesson.text.slice(0, 60)}{lesson.text.length > 60 ? '…' : ''}</p>
+                            <p className="text-sm text-text-primary group-hover:text-brutal-mint transition-colors">{lesson.title}</p>
+                            <p className="text-xs text-text-muted truncate mt-0.5 font-mono">{lesson.text.slice(0, 60)}{lesson.text.length > 60 ? '…' : ''}</p>
                           </div>
-                          <span className="text-xs text-neon-gold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">+75 XP</span>
+                          <span className="text-xs text-brutal-yellow opacity-0 group-hover:opacity-100 transition-opacity shrink-0">+75 XP</span>
                         </button>
                       ))}
                     </div>
@@ -223,21 +224,21 @@ export default function Typing() {
       {/* Stats Tab */}
       {tab === 'stats' && (
         <div className="space-y-4">
-          <NeonCard>
-            <h3 className="text-sm text-gray-400 mb-3">WPM Over Time</h3>
+          <BrutalCard>
+            <h3 className="text-sm text-text-secondary mb-3">WPM Over Time</h3>
             <WPMProjectionChart sessions={sessions.slice(-30)} />
-          </NeonCard>
-          <NeonCard>
-            <h3 className="text-sm text-gray-400 mb-3">Keyboard Heatmap</h3>
+          </BrutalCard>
+          <BrutalCard>
+            <h3 className="text-sm text-text-secondary mb-3">Keyboard Heatmap</h3>
             <KeyboardHeatmap keyStats={{}} />
-          </NeonCard>
+          </BrutalCard>
           {sessions.length > 0 && (
-            <NeonCard>
-              <h3 className="text-sm text-gray-400 mb-3">Recent Sessions</h3>
+            <BrutalCard>
+              <h3 className="text-sm text-text-secondary mb-3">Recent Sessions</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-gray-500 border-b border-border-dim">
+                    <tr className="text-text-muted border-b border-brutal-black">
                       <th className="text-left py-2">Date</th>
                       <th className="text-left py-2">Mode</th>
                       <th className="text-right py-2">WPM</th>
@@ -246,45 +247,29 @@ export default function Typing() {
                   </thead>
                   <tbody>
                     {sessions.slice(-20).reverse().map((s, i) => (
-                      <tr key={i} className="border-b border-border-dim/50">
-                        <td className="py-2 text-gray-400">{s.date}</td>
-                        <td className="py-2 text-gray-400 capitalize">{s.mode}</td>
-                        <td className="py-2 text-right font-mono text-neon-cyan">{s.wpm}</td>
-                        <td className="py-2 text-right font-mono text-neon-gold">{s.accuracy}%</td>
+                      <tr key={i} className="border-b border-brutal-black/50">
+                        <td className="py-2 text-text-secondary">{s.date}</td>
+                        <td className="py-2 text-text-secondary capitalize">{s.mode}</td>
+                        <td className="py-2 text-right font-mono text-brutal-mint">{s.wpm}</td>
+                        <td className="py-2 text-right font-mono text-brutal-yellow">{s.accuracy}%</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </NeonCard>
+            </BrutalCard>
           )}
         </div>
       )}
 
       {/* ML Analysis Tab */}
-      {tab === 'ml' && (
-        <div className="space-y-4">
-          <NeonCard>
-            <h3 className="text-lg font-heading text-white mb-2">ML Analysis</h3>
-            <p className="text-sm text-gray-400 mb-4">Analyze your typing patterns with 3 machine learning models.</p>
-            <button className="px-4 py-2 bg-neon-purple/20 text-neon-purple border border-neon-purple/30 rounded-lg text-sm hover:bg-neon-purple/30 transition-colors">
-              Run Analysis (+25 XP)
-            </button>
-          </NeonCard>
-          {mlReport && (
-            <NeonCard>
-              <h3 className="text-sm text-gray-400 mb-2">Latest Report</h3>
-              <pre className="text-xs text-gray-300 overflow-auto max-h-64">{JSON.stringify(mlReport, null, 2)}</pre>
-            </NeonCard>
-          )}
-        </div>
-      )}
+      {tab === 'ml' && <MlAnalysisPanel />}
 
       {/* Finger Guide Tab */}
       {tab === 'guide' && (
-        <NeonCard>
+        <BrutalCard>
           <FingerDiagram />
-        </NeonCard>
+        </BrutalCard>
       )}
     </div>
   );
