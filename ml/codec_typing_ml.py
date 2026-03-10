@@ -150,10 +150,9 @@ def model1_weak_key_classifier(sessions):
 
 def model2_wpm_predictor(sessions):
     """
-    Model 2: Polynomial Regression WPM Growth Predictor
-    Predicts future WPM trajectory based on practice history.
-    Uses linear regression (degree 1) for more stable long-range predictions
-    than quadratic, which can explode or collapse.
+    Model 2: Average WPM Growth Predictor
+    Predicts future WPM trajectory based on simple average improvement rate.
+    Replaces older ML approach for more stable updates.
     """
     if len(sessions) < 3:
         return {
@@ -171,68 +170,52 @@ def model2_wpm_predictor(sessions):
             'predictedWpm30': 0, 'predictedWpm60': 0, 'predictedWpm90': 0,
             'daysTo60Wpm': None,
             'trajectory': [],
+            'totalSessions': len(wpms),
             'improvementRate': 0,
         }
 
-    X_raw = np.arange(1, len(wpms) + 1).reshape(-1, 1)
-    y = np.array(wpms)
-
-    # Calculate the actual improvement rate (WPM gained per session)
-    if len(wpms) >= 5:
-        # Use a windowed average for stability
-        early_avg = np.mean(wpms[:max(3, len(wpms) // 4)])
-        late_avg = np.mean(wpms[-max(3, len(wpms) // 4):])
-        improvement_rate = (late_avg - early_avg) / max(len(wpms), 1)
+    # Focus on the most recent sessions to capture current trend
+    # Use up to the last 70 sessions to find the average WPM improvement
+    recent_wpms = wpms[-70:] if len(wpms) > 70 else wpms
+    
+    if len(recent_wpms) >= 5:
+        # Windowed average for the early and late parts of the recent sessions
+        window_size = max(3, len(recent_wpms) // 4)
+        early_avg = np.mean(recent_wpms[:window_size])
+        late_avg = np.mean(recent_wpms[-window_size:])
+        session_gap = max(1, len(recent_wpms) - window_size)
+        improvement_rate = (late_avg - early_avg) / session_gap
     else:
-        improvement_rate = (wpms[-1] - wpms[0]) / max(len(wpms) - 1, 1)
+        improvement_rate = (recent_wpms[-1] - recent_wpms[0]) / max(len(recent_wpms) - 1, 1)
 
-    if HAS_SKLEARN:
-        # Use degree 1 (linear) for stable predictions
-        # Degree 2 polynomial often produces wildly unrealistic long-range predictions
-        poly = PolynomialFeatures(degree=1)
-        X_poly = poly.fit_transform(X_raw)
-        reg = LinearRegression()
-        reg.fit(X_poly, y)
+    current_wpm = float(wpms[-1])
+    
+    trajectory = []
+    start_wpm = wpms[0]
+    overall_gap = max(1, len(wpms) - 1)
+    overall_improvement = (current_wpm - start_wpm) / overall_gap
+    
+    for i in range(len(wpms)):
+        predicted_at_i = start_wpm + (overall_improvement * i)
+        trajectory.append({
+            'session': i + 1,
+            'actual': round(float(wpms[i]), 1),
+            'predicted': round(float(max(0, predicted_at_i)), 1),
+        })
 
-        trajectory = []
-        for i in range(1, len(wpms) + 1):
-            trajectory.append({
-                'session': i,
-                'actual': round(float(wpms[i - 1]), 1),
-                'predicted': round(float(reg.predict(poly.transform([[i]]))[0]), 1),
-            })
+    max_predicted = min(current_wpm * 3, 200)
 
-        # Clamp predictions to reasonable bounds
-        current_wpm = float(wpms[-1])
-        max_predicted = min(current_wpm * 3, 200)  # no more than 3x current or 200
+    pred_30 = max(0, min(current_wpm + improvement_rate * 30, max_predicted))
+    pred_60 = max(0, min(current_wpm + improvement_rate * 60, max_predicted))
+    pred_90 = max(0, min(current_wpm + improvement_rate * 90, max_predicted))
 
-        pred_30 = float(reg.predict(poly.transform([[len(wpms) + 30]]))[0])
-        pred_60 = float(reg.predict(poly.transform([[len(wpms) + 60]]))[0])
-        pred_90 = float(reg.predict(poly.transform([[len(wpms) + 90]]))[0])
-
-        pred_30 = max(0, min(pred_30, max_predicted))
-        pred_60 = max(0, min(pred_60, max_predicted))
-        pred_90 = max(0, min(pred_90, max_predicted))
-    else:
-        coeffs = np.polyfit(X_raw.flatten(), y, 1)
-        poly_fn = np.poly1d(coeffs)
-        trajectory = [{'session': i + 1, 'actual': round(float(wpms[i]), 1),
-                       'predicted': round(float(poly_fn(i + 1)), 1)} for i in range(len(wpms))]
-        current_wpm = float(wpms[-1])
-        max_predicted = min(current_wpm * 3, 200)
-        pred_30 = max(0, min(float(poly_fn(len(wpms) + 30)), max_predicted))
-        pred_60 = max(0, min(float(poly_fn(len(wpms) + 60)), max_predicted))
-        pred_90 = max(0, min(float(poly_fn(len(wpms) + 90)), max_predicted))
-
-    # Estimate sessions to 60 WPM
     days_to_60 = None
-    current = wpms[-1]
-    if current < 60 and improvement_rate > 0:
-        days_to_60 = int(np.ceil((60 - current) / improvement_rate))
-        days_to_60 = min(days_to_60, 999)  # cap at 999
+    if current_wpm < 60 and improvement_rate > 0:
+        days_to_60 = int(np.ceil((60 - current_wpm) / improvement_rate))
+        days_to_60 = min(days_to_60, 999)
 
     return {
-        'currentWpm': round(float(wpms[-1]), 1),
+        'currentWpm': round(float(current_wpm), 1),
         'predictedWpm30': round(pred_30, 1),
         'predictedWpm60': round(pred_60, 1),
         'predictedWpm90': round(pred_90, 1),
